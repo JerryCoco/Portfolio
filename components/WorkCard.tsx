@@ -1,4 +1,3 @@
-// components/WorkCard.tsx
 'use client';
 import React from 'react';
 import Link from 'next/link';
@@ -25,7 +24,7 @@ export default function WorkCard({ title, subtitle, href, children, style }: Wor
   const inner = (
     <>
       <div style={{
-        aspectRatio: '4/3',
+        aspectRatio: '3/4',
         display: 'flex',
         alignItems: 'flex-end',
         padding: '1.25rem',
@@ -36,7 +35,7 @@ export default function WorkCard({ title, subtitle, href, children, style }: Wor
       </div>
       <div style={{
         padding: '1rem 1.25rem 1.25rem',
-        background: 'rgba(255,255,255,0.03)',
+        background: 'rgba(0,0,0,0.6)',
         borderTop: '1px solid rgba(255,255,255,0.06)',
       }}>
         <div style={{
@@ -78,9 +77,5 @@ export default function WorkCard({ title, subtitle, href, children, style }: Wor
     );
   }
 
-  return (
-    <div style={cardStyle}>
-      {inner}
-    </div>
-  );
+  return <div style={cardStyle}>{inner}</div>;
 }

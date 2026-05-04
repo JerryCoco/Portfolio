@@ -1,5 +1,4 @@
 import WorkCard from '@/components/WorkCard';
-import BlogItem from '@/components/BlogItem';
 import Link from 'next/link';
 
 const blogPosts = [
@@ -12,16 +11,13 @@ const blogPosts = [
 
 export default function Home() {
   return (
-    <div style={{ minHeight: '100vh', paddingTop: '52px', background: '#0d0d0d', color: 'white' }}>
-
-      {/* ── Hero ── */}
+    <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
+      {/* Hero */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>
-        {/* HeroThree removed */}
-
         <div style={{
-          maxWidth: 720,
-          margin: '0 auto',          
-          padding: '5rem 2rem 4rem',
+          maxWidth: 1000,
+          margin: '0 auto',
+          padding: '5rem 2.5rem 4rem',
         }}>
           <h1 style={{
             fontSize: 'clamp(2rem, 5vw, 3.25rem)',
@@ -32,10 +28,9 @@ export default function Home() {
             marginBottom: '1.25rem',
             fontFamily: 'Georgia, "Times New Roman", serif',
           }}>
-            Hey, I'm Jeremiah Abban <br />
-            Design &amp; Content Writer
+            Hey, I am Jeremiah Abban <br />
+            Design and Content Writer
           </h1>
-
           <p style={{
             fontSize: 15,
             color: 'rgba(255,255,255,0.45)',
@@ -44,12 +39,10 @@ export default function Home() {
             maxWidth: 480,
             letterSpacing: '0.01em',
           }}>
-            I design in code, specializing in 0→1 AI product
+            I design in code, specializing in 0 to 1 AI product
             development and scalable system architecture.
           </p>
-
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {/* Contact */}
             <a
               href="mailto:you@atom63.io"
               style={{
@@ -63,12 +56,10 @@ export default function Home() {
                 fontSize: 13,
                 textDecoration: 'none',
                 background: 'rgba(255,255,255,0.04)',
-                transition: 'border-color 0.15s, color 0.15s, background 0.15s',
               }}
             >
-              ✉ Contact
+              Contact
             </a>
-            {/* LinkedIn */}
             <a
               href="#"
               style={{
@@ -85,7 +76,6 @@ export default function Home() {
             >
               in
             </a>
-            {/* Behance */}
             <a
               href="#"
               style={{
@@ -100,16 +90,14 @@ export default function Home() {
                 background: 'rgba(255,255,255,0.04)',
               }}
             >
-              Bē
+              Be
             </a>
           </div>
         </div>
       </div>
 
-      {/* ── Main content ── (already centered with margin: '0 auto') */}
-      <div style={{ padding: '0 2rem 6rem', maxWidth: 1100, margin: '0 auto' }}>
-
-        {/* 01. Featured Work */}
+      {/* Main content */}
+      <div style={{ padding: '0 2.5rem 6rem', maxWidth: 1000, margin: '0 auto' }}>
         <div style={{
           fontSize: 10,
           fontWeight: 600,
@@ -120,17 +108,15 @@ export default function Home() {
         }}>
           01. Featured Work
         </div>
-
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(2, 1fr)',
           gap: '1rem',
           marginBottom: '4rem',
         }}>
-          {/* Card 1 — Holovita AI */}
           <WorkCard
             title="Holovita AI"
-            subtitle="0→1 health companion product"
+            subtitle="0-1 health companion product"
             href="/projects"
             style={{ background: 'linear-gradient(135deg, #0f1f0f, #0a150a)' }}
           >
@@ -152,21 +138,26 @@ export default function Home() {
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Good Morning, Jane</div>
             </div>
           </WorkCard>
-
-          {/* Card 2 — Sys63 OS */}
           <WorkCard
-            title="Sys63 OS"
-            subtitle="Bento-style desktop OS interface"
-            href="/sys63"
-            style={{ background: 'linear-gradient(135deg, #0d1a2e, #071020)' }}
+            title="Hyperlink (Nexa AI)"
+            subtitle="Brand and coded UI for on-device AI"
+            href="/projects"
+            style={{ background: 'linear-gradient(135deg, #1a2a4a, #0d1830)' }}
           >
-            <div style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingBottom: '1rem',
-            }}>
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '1rem' }}>
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" opacity={0.8}>
+                <rect x="20" y="20" width="18" height="18" rx="2" stroke="white" strokeWidth="2" transform="rotate(15 29 29)" />
+                <rect x="44" y="20" width="18" height="18" rx="2" stroke="white" strokeWidth="2" transform="rotate(-15 53 29)" />
+              </svg>
+            </div>
+          </WorkCard>
+          <WorkCard
+            title="Sys63"
+            subtitle="WebOS designed in code."
+            href="/sys63"
+            style={{ background: 'linear-gradient(135deg, #1a1a2e, #0d0d1a)' }}
+          >
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '1rem' }}>
               <svg width="80" height="80" viewBox="0 0 80 80" fill="none" opacity={0.8}>
                 <rect x="10" y="10" width="24" height="24" rx="3" stroke="white" strokeWidth="2" transform="rotate(12 22 22)" />
                 <rect x="46" y="10" width="24" height="24" rx="3" stroke="white" strokeWidth="2" transform="rotate(-8 58 22)" />
@@ -175,9 +166,23 @@ export default function Home() {
               </svg>
             </div>
           </WorkCard>
+          <WorkCard
+            title="Windows 11"
+            subtitle="Design at Windows Design Team"
+            href="/projects"
+            style={{ background: 'linear-gradient(135deg, #0a1628, #1a3a5c)' }}
+          >
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '1rem' }}>
+              <svg width="70" height="70" viewBox="0 0 70 70" fill="none" opacity={0.9}>
+                <rect x="5" y="5" width="28" height="28" rx="2" fill="white" opacity={0.9} />
+                <rect x="37" y="5" width="28" height="28" rx="2" fill="white" opacity={0.7} />
+                <rect x="5" y="37" width="28" height="28" rx="2" fill="white" opacity={0.7} />
+                <rect x="37" y="37" width="28" height="28" rx="2" fill="white" opacity={0.5} />
+              </svg>
+            </div>
+          </WorkCard>
         </div>
 
-        {/* 02. Blog */}
         <div style={{
           fontSize: 10,
           fontWeight: 600,
@@ -188,7 +193,6 @@ export default function Home() {
         }}>
           02. Blog
         </div>
-
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {blogPosts.map((post, i) => (
             <Link
@@ -201,7 +205,6 @@ export default function Home() {
                 padding: '0.85rem 0',
                 borderBottom: '1px solid rgba(255,255,255,0.06)',
                 textDecoration: 'none',
-                transition: 'color 0.15s',
                 color: 'inherit',
               }}
             >
@@ -225,7 +228,6 @@ export default function Home() {
             </Link>
           ))}
         </div>
-
       </div>
     </div>
   );

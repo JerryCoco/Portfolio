@@ -28,6 +28,7 @@ body {
   overflow-x: hidden;
   padding-left: 2rem;
   padding-right: 2rem;
+  padding-top: 52px;   /* ← FIX: prevents content from being hidden under fixed navbar */
 }
 
 /* NAV */
@@ -226,6 +227,7 @@ nav {
   overflow: hidden;
   margin-left: -2rem;
   margin-right: -2rem;
+  margin-top: -52px;   /* ← FIX: cancels body padding-top on sys63 page (where navbar is hidden) */
 }
 .sys63-bg {
   position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -422,5 +424,5 @@ nav {
   #three-canvas { display: none; }
   .sys63-desktop { flex-direction: column; }
   .right-widgets { width: 100%; }
-  #page-sys63 { margin-left: -1rem; margin-right: -1rem; }
+  #page-sys63 { margin-left: -1rem; margin-right: -1rem; margin-top: -52px; }
 }

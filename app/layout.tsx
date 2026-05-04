@@ -1,11 +1,10 @@
-'use client'; // Required to use usePathname
+'use client';
 
 import './globals.css';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import ScrollIndicator from '@/components/ScrollIndicator';
-import ViewportDisplay from '@/components/ViewportDisplay'; 
-import { usePathname } from 'next/navigation';  
+import { usePathname } from 'next/navigation';
 import { EB_Garamond, DM_Mono, Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'], weight: ['300','400','500'], variable: '--font-sans' });
@@ -14,19 +13,13 @@ const dmMono = DM_Mono({ subsets: ['latin'], weight: ['400','500'], variable: '-
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  
- 
   const isSysPage = pathname === '/sys63';
 
   return (
     <html lang="en" className={`${inter.variable} ${ebGaramond.variable} ${dmMono.variable}`}>
       <body>
-        {/* Only show these if NOT on the sys63 page */}
         {!isSysPage && <Nav />}
-         
-        
         <main>{children}</main>
-        
         {!isSysPage && <Footer />}
         {!isSysPage && <ScrollIndicator />}
       </body>

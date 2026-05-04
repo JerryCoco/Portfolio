@@ -26,7 +26,7 @@ export default function Nav() {
           align-items: center;
           justify-content: center;
           height: 56px;
-          max-width: 760px;
+          max-width: 1000px;
           width: calc(100% - 2rem);
           margin: 0 auto;
           border-radius: 40px;
