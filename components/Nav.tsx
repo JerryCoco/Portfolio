@@ -1,134 +1,241 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useRef, useEffect } from 'react';
 
 export default function Nav() {
   const pathname = usePathname();
-  const links = [
-    { href: '/', label: 'Index' },
-    { href: '/about', label: 'About' },
-    { href: '/projects', label: 'Projects' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/learn', label: 'Learn' },
-    { href: '/sys63', label: 'Sys63' },
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const springConfig = { stiffness: 400, damping: 25, mass: 1 };
+
+  // Track mouse position relative to the dock container
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      // Get x relative to the dock's left edge
+      const relativeX = e.clientX - rect.left;
+      mouseX.set(relativeX);
+    };
+    container.addEventListener('mousemove', onMouseMove);
+    return () => container.removeEventListener('mousemove', onMouseMove);
+  }, [mouseX]);
+
+  const navItems = [
+    { href: '/about', label: 'About', icon: '📄' },
+    { href: '/projects', label: 'Projects', icon: '📁' },
+    { href: '/blog', label: 'Blog', icon: '✍️' },
+    { href: '/learn', label: 'Learn', icon: '📚' },
+    { href: '/sys63', label: 'Sys63', icon: '💻' },
   ];
+
+  // Dock parameters (match the screenshot)
+  const magnification = 2.2;   // max scale
+  const distance = 100;        // radius in px
+  const iconSize = 48;         // base icon size (px)
+  const gap = 12;              // gap between items
+  const alwaysShowLabels = false;
+
+  // Gaussian formula: scale = (magnification - 1) * exp(-d² / (2 * distance²)) + 1
+  const getScale = (itemMouseX: number) => {
+    const d = Math.abs(itemMouseX);
+    if (d > distance) return 1;
+    const exponent = -(d * d) / (2 * distance * distance);
+    const scale = (magnification - 1) * Math.exp(exponent) + 1;
+    return scale;
+  };
 
   return (
     <>
-      <style>{`
-        .nav-center {
+      <style jsx>{`
+        .dock-fixed {
           position: fixed;
-          top: 1.5rem;
+          top: 24px;
           left: 0;
           right: 0;
           z-index: 100;
           display: flex;
-          align-items: center;
           justify-content: center;
-          height: 56px;
-          max-width: 1000px;
-          width: calc(100% - 2rem);
-          margin: 0 auto;
-          border-radius: 40px;
-          background: rgba(13, 13, 13, 0.85);
+          pointer-events: none;
+          padding: 0 20px;
+        }
+        .dock-container {
+          max-width: 920px;
+          width: 100%;
+          background: rgba(20, 24, 22, 0.88);
           backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          padding: 0 1.5rem;
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          padding: 8px 12px;
+          pointer-events: auto;
         }
-
-        @media (min-width: 1600px) {
-          .nav-center {
-            max-width: 860px;
-          }
-        }
-
-        .nav-list {
+        .dock-items {
           display: flex;
-          align-items: center;
+          align-items: flex-end;
           justify-content: center;
-          gap: 2rem;
+          gap: ${gap}px;
           list-style: none;
           margin: 0;
           padding: 0;
         }
-
-        .nav-list li {
-          position: relative;
+        .dock-item {
           display: flex;
+          flex-direction: column;
           align-items: center;
-        }
-
-        /* ————— ALL VERTICAL DASHES / DIVIDERS REMOVED ————— */
-        /* (no ::after pseudo-element) */
-
-        .nav-link {
-          padding: 0.3rem 0.75rem;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          font-weight: 460;
-          letter-spacing: 0.01em;
+          cursor: pointer;
           text-decoration: none;
-          transition: color 0.2s, background 0.2s;
-          color: rgba(255, 255, 255, 0.5);
+          transition: filter 0.1s;
+        }
+        .icon-wrapper {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: ${iconSize}px;
+          height: ${iconSize}px;
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.1);
+          transition: background 0.2s;
+        }
+        .dock-item:hover .icon-wrapper {
+          background: rgba(255, 255, 255, 0.2);
+        }
+        .icon {
+          font-size: calc(${iconSize}px * 0.6);
+          line-height: 1;
+          transition: transform 0.1s;
+        }
+        .label {
+          font-family: 'Inter', system-ui, sans-serif;
+          font-size: 11px;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.7);
+          margin-top: 6px;
+          opacity: ${alwaysShowLabels ? 1 : 0};
+          transition: opacity 0.2s;
           white-space: nowrap;
+          letter-spacing: 0.01em;
         }
-
-        .nav-link.active {
-          color: rgba(255, 255, 255, 0.96);
-          background: rgba(255, 255, 255, 0.08);
+        .dock-item:hover .label {
+          opacity: 1;
         }
-
-        .nav-link:hover:not(.active) {
-          color: rgba(255, 255, 255, 0.85);
-          background: rgba(255, 255, 255, 0.03);
+        .active .icon-wrapper {
+          background: rgba(255, 255, 255, 0.25);
+          border: 1px solid rgba(255, 255, 255, 0.2);
         }
-
-        @media (max-width: 680px) {
-          .nav-center {
-            height: auto;
-            min-height: 52px;
-            border-radius: 32px;
-            padding: 0.6rem 1rem;
-            top: 1rem;
-            max-width: calc(100% - 2rem);
-          }
-          .nav-list {
-            gap: 1rem 1.2rem;
-            flex-wrap: wrap;
-            justify-content: center;
-          }
-          .nav-link {
-            padding: 0.25rem 0.6rem;
-            font-size: 0.85rem;
-          }
+        .active .label {
+          opacity: 1;
+          font-weight: 600;
+          color: white;
         }
-
-        @media (max-width: 860px) and (min-width: 681px) {
-          .nav-list {
-            gap: 1.4rem;
-          }
+        @media (max-width: 640px) {
+          .dock-container { padding: 6px 10px; }
+          .dock-items { gap: 8px; }
+          .icon-wrapper { width: 40px; height: 40px; }
+          .icon { font-size: 24px; }
+          .label { font-size: 10px; }
         }
       `}</style>
 
-      <nav className="nav-center">
-        <ul className="nav-list">
-          {links.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={`nav-link ${isActive ? 'active' : ''}`}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <div className="dock-fixed">
+        <div className="dock-container" ref={containerRef}>
+          <ul className="dock-items">
+            {navItems.map((item) => {
+              const itemRef = useRef<HTMLLIElement>(null);
+              // We need to compute the item's center x relative to the container
+              // Use a MotionValue that updates on mousemove
+              // For simplicity, we calculate scale using a transform that reads mouseX and item position
+              // Alternative: use useTransform with a function that reads the element's offset
+              // We'll implement by reading the ref's position in the transform function
+              // Since hooks can't be called inside map, we create a separate component
+              return (
+                <MotionDockItem
+                  key={item.href}
+                  href={item.href}
+                  label={item.label}
+                  icon={item.icon}
+                  isActive={pathname === item.href}
+                  mouseX={mouseX}
+                  containerRef={containerRef}
+                  iconSize={iconSize}
+                  magnification={magnification}
+                  distance={distance}
+                  alwaysShowLabels={alwaysShowLabels}
+                />
+              );
+            })}
+          </ul>
+        </div>
+      </div>
     </>
+  );
+}
+
+// Separate component to handle individual dock item animation
+function MotionDockItem({
+  href,
+  label,
+  icon,
+  isActive,
+  mouseX,
+  containerRef,
+  iconSize,
+  magnification,
+  distance,
+  alwaysShowLabels,
+}: {
+  href: string;
+  label: string;
+  icon: string;
+  isActive: boolean;
+  mouseX: any;
+  containerRef: React.RefObject<HTMLDivElement>;
+  iconSize: number;
+  magnification: number;
+  distance: number;
+  alwaysShowLabels: boolean;
+}) {
+  const itemRef = useRef<HTMLLIElement>(null);
+
+  // Calculate scale based on mouse position relative to this item's center
+  const scale = useTransform(mouseX, (x: number) => {
+    if (!itemRef.current || !containerRef.current) return 1;
+    const itemRect = itemRef.current.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const itemCenterX = itemRect.left + itemRect.width / 2 - containerRect.left;
+    const dx = x - itemCenterX;
+    if (Math.abs(dx) > distance) return 1;
+    const exponent = -(dx * dx) / (2 * distance * distance);
+    const s = (magnification - 1) * Math.exp(exponent) + 1;
+    return s;
+  });
+
+  const springScale = useSpring(scale, { stiffness: 400, damping: 25, mass: 1 });
+
+  return (
+    <li
+      ref={itemRef}
+      className={`dock-item ${isActive ? 'active' : ''}`}
+      style={{ transformOrigin: 'bottom center' }}
+    >
+      <Link href={href} style={{ textDecoration: 'none' }}>
+        <motion.div
+          className="icon-wrapper"
+          style={{
+            width: iconSize,
+            height: iconSize,
+            scale: springScale,
+          }}
+        >
+          <span className="icon" style={{ fontSize: iconSize * 0.6 }}>{icon}</span>
+        </motion.div>
+        <div className="label" style={{ opacity: alwaysShowLabels ? 1 : undefined }}>
+          {label}
+        </div>
+      </Link>
+    </li>
   );
 }

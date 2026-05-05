@@ -5,9 +5,10 @@ import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import ScrollIndicator from '@/components/ScrollIndicator';
 import { usePathname } from 'next/navigation';
-import { EB_Garamond, DM_Mono, Inter } from 'next/font/google';
+import { EB_Garamond, DM_Mono, Inter, Geist } from 'next/font/google';
+import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ['latin'], weight: ['300','400','500'], variable: '--font-sans' });
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 const ebGaramond = EB_Garamond({ subsets: ['latin'], weight: ['400','500'], style: ['normal','italic'], variable: '--font-serif' });
 const dmMono = DM_Mono({ subsets: ['latin'], weight: ['400','500'], variable: '--font-mono' });
 
@@ -16,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const isSysPage = pathname === '/sys63';
 
   return (
-    <html lang="en" className={`${inter.variable} ${ebGaramond.variable} ${dmMono.variable}`}>
+    <html lang="en" className={cn(ebGaramond.variable, dmMono.variable, "font-sans", geist.variable)}>
       <body>
         {!isSysPage && <Nav />}
         <main>{children}</main>
