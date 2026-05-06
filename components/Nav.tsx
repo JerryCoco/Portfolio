@@ -1,241 +1,252 @@
-'use client';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { useRef, useEffect } from 'react';
+"use client";
 
-export default function Nav() {
-  const pathname = usePathname();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const springConfig = { stiffness: 400, damping: 25, mass: 1 };
+import * as React from "react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  type SpringOptions,
+  AnimatePresence,
+} from "motion/react";
+import { usePathname } from "next/navigation";
 
-  // Track mouse position relative to the dock container
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+import { cn } from "@/lib/utils";
 
-    const onMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      // Get x relative to the dock's left edge
-      const relativeX = e.clientX - rect.left;
-      mouseX.set(relativeX);
-    };
-    container.addEventListener('mousemove', onMouseMove);
-    return () => container.removeEventListener('mousemove', onMouseMove);
-  }, [mouseX]);
+export interface NavItem {
+  icon: React.ReactNode;
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  separator?: boolean;
+}
 
-  const navItems = [
-    { href: '/about', label: 'About', icon: '📄' },
-    { href: '/projects', label: 'Projects', icon: '📁' },
-    { href: '/blog', label: 'Blog', icon: '✍️' },
-    { href: '/learn', label: 'Learn', icon: '📚' },
-    { href: '/sys63', label: 'Sys63', icon: '💻' },
-  ];
+export interface NavProps {
+  items: NavItem[];
+  magnification?: number;
+  distance?: number;
+  iconSize?: number;
+  gap?: number;
+  borderRadius?: number;
+  alwaysShowLabels?: boolean;
+  springOptions?: SpringOptions;
+  className?: string;
+}
 
-  // Dock parameters (match the screenshot)
-  const magnification = 2.2;   // max scale
-  const distance = 100;        // radius in px
-  const iconSize = 48;         // base icon size (px)
-  const gap = 12;              // gap between items
-  const alwaysShowLabels = false;
+const DEFAULT_SPRING: SpringOptions = {
+  stiffness: 400,
+  damping: 25,
+  mass: 0.4,
+};
 
-  // Gaussian formula: scale = (magnification - 1) * exp(-d² / (2 * distance²)) + 1
-  const getScale = (itemMouseX: number) => {
-    const d = Math.abs(itemMouseX);
-    if (d > distance) return 1;
-    const exponent = -(d * d) / (2 * distance * distance);
-    const scale = (magnification - 1) * Math.exp(exponent) + 1;
-    return scale;
-  };
-
+function NavSeparator() {
   return (
-    <>
-      <style jsx>{`
-        .dock-fixed {
-          position: fixed;
-          top: 24px;
-          left: 0;
-          right: 0;
-          z-index: 100;
-          display: flex;
-          justify-content: center;
-          pointer-events: none;
-          padding: 0 20px;
-        }
-        .dock-container {
-          max-width: 920px;
-          width: 100%;
-          background: rgba(20, 24, 22, 0.88);
-          backdrop-filter: blur(12px);
-          border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          padding: 8px 12px;
-          pointer-events: auto;
-        }
-        .dock-items {
-          display: flex;
-          align-items: flex-end;
-          justify-content: center;
-          gap: ${gap}px;
-          list-style: none;
-          margin: 0;
-          padding: 0;
-        }
-        .dock-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          cursor: pointer;
-          text-decoration: none;
-          transition: filter 0.1s;
-        }
-        .icon-wrapper {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: ${iconSize}px;
-          height: ${iconSize}px;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.1);
-          transition: background 0.2s;
-        }
-        .dock-item:hover .icon-wrapper {
-          background: rgba(255, 255, 255, 0.2);
-        }
-        .icon {
-          font-size: calc(${iconSize}px * 0.6);
-          line-height: 1;
-          transition: transform 0.1s;
-        }
-        .label {
-          font-family: 'Inter', system-ui, sans-serif;
-          font-size: 11px;
-          font-weight: 500;
-          color: rgba(255, 255, 255, 0.7);
-          margin-top: 6px;
-          opacity: ${alwaysShowLabels ? 1 : 0};
-          transition: opacity 0.2s;
-          white-space: nowrap;
-          letter-spacing: 0.01em;
-        }
-        .dock-item:hover .label {
-          opacity: 1;
-        }
-        .active .icon-wrapper {
-          background: rgba(255, 255, 255, 0.25);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .active .label {
-          opacity: 1;
-          font-weight: 600;
-          color: white;
-        }
-        @media (max-width: 640px) {
-          .dock-container { padding: 6px 10px; }
-          .dock-items { gap: 8px; }
-          .icon-wrapper { width: 40px; height: 40px; }
-          .icon { font-size: 24px; }
-          .label { font-size: 10px; }
-        }
-      `}</style>
-
-      <div className="dock-fixed">
-        <div className="dock-container" ref={containerRef}>
-          <ul className="dock-items">
-            {navItems.map((item) => {
-              const itemRef = useRef<HTMLLIElement>(null);
-              // We need to compute the item's center x relative to the container
-              // Use a MotionValue that updates on mousemove
-              // For simplicity, we calculate scale using a transform that reads mouseX and item position
-              // Alternative: use useTransform with a function that reads the element's offset
-              // We'll implement by reading the ref's position in the transform function
-              // Since hooks can't be called inside map, we create a separate component
-              return (
-                <MotionDockItem
-                  key={item.href}
-                  href={item.href}
-                  label={item.label}
-                  icon={item.icon}
-                  isActive={pathname === item.href}
-                  mouseX={mouseX}
-                  containerRef={containerRef}
-                  iconSize={iconSize}
-                  magnification={magnification}
-                  distance={distance}
-                  alwaysShowLabels={alwaysShowLabels}
-                />
-              );
-            })}
-          </ul>
-        </div>
-      </div>
-    </>
+    <div className="mx-1 flex items-center self-stretch">
+      <div className="h-6 w-px bg-foreground/10" />
+    </div>
   );
 }
 
-// Separate component to handle individual dock item animation
-function MotionDockItem({
-  href,
-  label,
-  icon,
-  isActive,
+function NavIcon({
+  item,
   mouseX,
-  containerRef,
-  iconSize,
   magnification,
   distance,
+  iconSize,
+  borderRadius,
   alwaysShowLabels,
+  springOptions,
+  onHover,
+  iconRef: externalIconRef,
+  isActive,
 }: {
-  href: string;
-  label: string;
-  icon: string;
-  isActive: boolean;
-  mouseX: any;
-  containerRef: React.RefObject<HTMLDivElement>;
-  iconSize: number;
+  item: NavItem;
+  mouseX: ReturnType<typeof useMotionValue<number>>;
   magnification: number;
   distance: number;
+  iconSize: number;
+  borderRadius: number;
   alwaysShowLabels: boolean;
+  springOptions: SpringOptions;
+  onHover: (ref: React.RefObject<HTMLDivElement | null> | null) => void;
+  iconRef: React.RefObject<HTMLDivElement | null>;
+  isActive: boolean;
 }) {
-  const itemRef = useRef<HTMLLIElement>(null);
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
 
-  // Calculate scale based on mouse position relative to this item's center
-  const scale = useTransform(mouseX, (x: number) => {
-    if (!itemRef.current || !containerRef.current) return 1;
-    const itemRect = itemRef.current.getBoundingClientRect();
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const itemCenterX = itemRect.left + itemRect.width / 2 - containerRect.left;
-    const dx = x - itemCenterX;
-    if (Math.abs(dx) > distance) return 1;
-    const exponent = -(dx * dx) / (2 * distance * distance);
-    const s = (magnification - 1) * Math.exp(exponent) + 1;
-    return s;
+  const distanceFromMouse = useTransform(mouseX, (val) => {
+    const el = wrapperRef.current;
+    if (!el) return distance * 100;
+    const rect = el.getBoundingClientRect();
+    return Math.abs(val - (rect.left + rect.width / 2));
   });
 
-  const springScale = useSpring(scale, { stiffness: 400, damping: 25, mass: 1 });
+  const gaussian = (d: number) =>
+    (magnification - 1) * Math.exp(-(d * d) / (2 * distance * distance)) + 1;
+
+  const widthRaw = useTransform(
+    distanceFromMouse,
+    (d) => iconSize * gaussian(d),
+  );
+  const heightRaw = useTransform(
+    distanceFromMouse,
+    (d) => iconSize * gaussian(d),
+  );
+
+  const width = useSpring(widthRaw, springOptions);
+  const height = useSpring(heightRaw, springOptions);
+
+  const Tag = item.href ? "a" : "button";
 
   return (
-    <li
-      ref={itemRef}
-      className={`dock-item ${isActive ? 'active' : ''}`}
-      style={{ transformOrigin: 'bottom center' }}
+    <motion.div
+      ref={wrapperRef}
+      className="relative flex items-end justify-center"
+      style={{ width, height: iconSize }}
     >
-      <Link href={href} style={{ textDecoration: 'none' }}>
-        <motion.div
-          className="icon-wrapper"
-          style={{
-            width: iconSize,
-            height: iconSize,
-            scale: springScale,
-          }}
+      <motion.div
+        ref={externalIconRef}
+        style={{ width, height, bottom: 0 }}
+        className="absolute"
+      >
+        <Tag
+          href={item.href}
+          onClick={item.onClick}
+          onMouseEnter={() => onHover(externalIconRef)}
+          onMouseLeave={() => onHover(null)}
+          aria-label={item.label}
+          style={{ borderRadius: '50%' }}
+          className={cn(
+            "flex h-full w-full items-center justify-center rounded-full",
+            "text-foreground/70 transition-colors duration-150",
+            "hover:bg-foreground/[0.1] hover:text-foreground",
+            "focus-visible:outline-none",
+            "[&_svg]:size-[55%]",
+            isActive && "ring-1 ring-foreground/[0.08] text-foreground",
+          )}
         >
-          <span className="icon" style={{ fontSize: iconSize * 0.6 }}>{icon}</span>
-        </motion.div>
-        <div className="label" style={{ opacity: alwaysShowLabels ? 1 : undefined }}>
-          {label}
-        </div>
-      </Link>
-    </li>
+          {item.icon}
+        </Tag>
+      </motion.div>
+
+      {alwaysShowLabels && (
+        <span className="mt-0.5 text-[10px] font-medium tracking-tight text-foreground/40 whitespace-nowrap pointer-events-none select-none leading-none">
+          {item.label}
+        </span>
+      )}
+    </motion.div>
+  );
+}
+
+export default function Nav({
+  items,
+  magnification = 1.8,
+  distance = 120,
+  iconSize = 40,
+  gap = 4,
+  borderRadius = 16,
+  alwaysShowLabels = false,
+  springOptions = DEFAULT_SPRING,
+  className,
+}: NavProps) {
+  const mouseX = useMotionValue(Infinity);
+  const navRef = React.useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  const iconRefs = React.useRef<React.RefObject<HTMLDivElement | null>[]>(
+    items.map(() => React.createRef<HTMLDivElement>()),
+  );
+
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
+  const [tooltipX, setTooltipX] = React.useState(0);
+  const [tooltipBottomOffset, setTooltipBottomOffset] = React.useState(0);
+
+  React.useEffect(() => {
+    if (hoveredIndex === null) return;
+
+    let raf: number;
+    const update = () => {
+      const iconEl = iconRefs.current[hoveredIndex]?.current;
+      const navEl = navRef.current;
+      if (iconEl && navEl) {
+        const iconRect = iconEl.getBoundingClientRect();
+        const navRect = navEl.getBoundingClientRect();
+        setTooltipX(iconRect.left - navRect.left + iconRect.width / 2);
+        setTooltipBottomOffset(navRect.bottom - iconRect.top);
+      }
+      raf = requestAnimationFrame(update);
+    };
+    raf = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(raf);
+  }, [hoveredIndex]);
+
+  const handleHover = React.useCallback(
+    (ref: React.RefObject<HTMLDivElement | null> | null) => {
+      if (ref === null) {
+        setHoveredIndex(null);
+        return;
+      }
+      const idx = iconRefs.current.findIndex((r) => r === ref);
+      setHoveredIndex(idx >= 0 ? idx : null);
+    },
+    [],
+  );
+
+  return (
+    <motion.div
+      ref={navRef}
+      className={cn(
+        "relative flex items-end overflow-visible border border-foreground/[0.08] bg-background/80 px-2 py-2 shadow-none hover:shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_2px_8px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)] transition-shadow duration-200 backdrop-blur-xl",
+        className,
+      )}
+      style={{ gap, borderRadius }}
+      onMouseMove={(e) => mouseX.set(e.clientX)}
+      onMouseLeave={() => mouseX.set(Infinity)}
+    >
+      {items.map((item, i) => (
+        <React.Fragment key={i}>
+          <NavIcon
+            item={item}
+            mouseX={mouseX}
+            magnification={magnification}
+            distance={distance}
+            iconSize={iconSize}
+            borderRadius={borderRadius}
+            alwaysShowLabels={alwaysShowLabels}
+            springOptions={springOptions}
+            onHover={handleHover}
+            iconRef={iconRefs.current[i]}
+            isActive={pathname === item.href}
+          />
+          {item.separator && <NavSeparator />}
+        </React.Fragment>
+      ))}
+
+      {!alwaysShowLabels && (
+        <AnimatePresence>
+          {hoveredIndex !== null && (
+            <motion.div
+              key="nav-tooltip"
+              layoutId="nav-tooltip"
+              className="pointer-events-none absolute flex flex-col items-center"
+              style={{
+                left: tooltipX,
+                bottom: tooltipBottomOffset + 4,
+                x: "-50%",
+                zIndex: 9999,
+              }}
+              initial={{ opacity: 0, y: 6, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 6, scale: 0.94 }}
+              transition={{ duration: 0.13, ease: "easeOut" }}
+            >
+              <span className="rounded-lg bg-neutral-900 border border-white/10 px-3 py-1.5 text-xs font-medium text-white shadow-xl whitespace-nowrap">
+                {items[hoveredIndex].label}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
+    </motion.div>
   );
 }

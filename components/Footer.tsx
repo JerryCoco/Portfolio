@@ -125,7 +125,7 @@ export default function Footer() {
             padding: '1.25rem 2rem',
           }}>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
-              © 2026 You Zhang · ATOM63
+              © 2026 Jeremiah Abban · Coco
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>

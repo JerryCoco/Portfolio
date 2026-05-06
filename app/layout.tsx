@@ -1,16 +1,33 @@
 'use client';
 
 import './globals.css';
-import Nav from '@/components/Nav';
+import Nav from '@/components/Nav';   
 import Footer from '@/components/Footer';
 import ScrollIndicator from '@/components/ScrollIndicator';
 import { usePathname } from 'next/navigation';
 import { EB_Garamond, DM_Mono, Inter, Geist } from 'next/font/google';
 import { cn } from "@/lib/utils";
+import { 
+  House, 
+  UserRound, 
+  FolderOpen, 
+  PenLine, 
+  GraduationCap, 
+  MonitorDot 
+} from 'lucide-react';
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 const ebGaramond = EB_Garamond({ subsets: ['latin'], weight: ['400','500'], style: ['normal','italic'], variable: '--font-serif' });
 const dmMono = DM_Mono({ subsets: ['latin'], weight: ['400','500'], variable: '--font-mono' });
+
+const navItems = [
+  { icon: <House size={20} strokeWidth={1.5} />, label: 'Home', href: '/' },
+  { icon: <UserRound size={20} strokeWidth={1.5} />, label: 'About', href: '/about' },
+  { icon: <FolderOpen size={20} strokeWidth={1.5} />, label: 'Projects', href: '/projects' },
+  { icon: <PenLine size={20} strokeWidth={1.5} />, label: 'Blog', href: '/blog' },
+  { icon: <GraduationCap size={20} strokeWidth={1.5} />, label: 'Learn', href: '/learn', separator: true },
+  { icon: <MonitorDot size={20} strokeWidth={1.5} />, label: 'Sys63', href: '/sys63' },
+];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -19,8 +36,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={cn(ebGaramond.variable, dmMono.variable, "font-sans", geist.variable)}>
       <body>
-        {!isSysPage && <Nav />}
-        <main>{children}</main>
+        {!isSysPage && (
+          // pt-16 = 64px spacing from top - gives room for tooltip to appear above navbar
+          <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-16">
+            <Nav 
+              items={navItems} 
+              magnification={1.6}
+              distance={100}
+              iconSize={44}
+              gap={8}
+              borderRadius={24}
+              className="shadow-lg"
+            />
+          </div>
+        )}
+        <main className="pt-0">{children}</main>
         {!isSysPage && <Footer />}
         {!isSysPage && <ScrollIndicator />}
       </body>
