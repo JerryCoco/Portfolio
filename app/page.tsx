@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useRef, MouseEvent } from 'react';
+import { useState, useRef, MouseEvent, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { VerticalScrollNav, useActiveSection } from '../components/vertical-scroll-nav';
 
 const blogPosts = [
   { title: "Recreating Antimetal's Hero Animation With a Canvas Dot Grid", date: "Apr 2026" },
@@ -11,7 +13,6 @@ const blogPosts = [
   { title: "The Architecture Behind My Sys63 OS Interface", date: "Feb 2026" },
 ];
 
-// Featured work data – matches original content but with glassmorphism styling
 const featuredWork = [
   {
     name: 'Holovita AI',
@@ -39,11 +40,82 @@ const featuredWork = [
   },
 ];
 
+// Type for a crosshair effect
+interface Crosshair {
+  id: number;
+  x: number;
+  y: number;
+}
+
 export default function Home() {
   const [copied, setCopied] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLAnchorElement>(null);
+
+  // Crosshair effect state
+  const [crosshairs, setCrosshairs] = useState<Crosshair[]>([]);
+
+  // Blog shared layout animation state
+  const blogContainerRef = useRef<HTMLDivElement>(null);
+  const blogRowRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [hoveredBlogIndex, setHoveredBlogIndex] = useState<number | null>(null);
+  const [highlightStyle, setHighlightStyle] = useState({ y: 0, height: 0 });
+
+  const HIGHLIGHT_MARGIN_TOP = 6;
+  const HIGHLIGHT_MARGIN_BOTTOM = 6;
+
+  useEffect(() => {
+    if (hoveredBlogIndex !== null && blogRowRefs.current[hoveredBlogIndex]) {
+      const row = blogRowRefs.current[hoveredBlogIndex];
+      const container = blogContainerRef.current;
+      if (row && container) {
+        const rowRect = row.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        setHighlightStyle({
+          y: rowRect.top - containerRect.top + HIGHLIGHT_MARGIN_TOP,
+          height: rowRect.height - HIGHLIGHT_MARGIN_TOP - HIGHLIGHT_MARGIN_BOTTOM,
+        });
+      }
+    }
+  }, [hoveredBlogIndex]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (hoveredBlogIndex !== null && blogRowRefs.current[hoveredBlogIndex]) {
+        const row = blogRowRefs.current[hoveredBlogIndex];
+        const container = blogContainerRef.current;
+        if (row && container) {
+          const rowRect = row.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          setHighlightStyle({
+            y: rowRect.top - containerRect.top + HIGHLIGHT_MARGIN_TOP,
+            height: rowRect.height - HIGHLIGHT_MARGIN_TOP - HIGHLIGHT_MARGIN_BOTTOM,
+          });
+        }
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [hoveredBlogIndex]);
+
+  // Crosshair effect: listen to clicks anywhere
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const crosshair: Crosshair = {
+        id: Date.now() + Math.random(),
+        x: e.clientX,
+        y: e.clientY,
+      };
+      setCrosshairs((prev) => [...prev, crosshair]);
+      // Remove crosshair after animation ends (500ms)
+      setTimeout(() => {
+        setCrosshairs((prev) => prev.filter((c) => c.id !== crosshair.id));
+      }, 500);
+    };
+    document.addEventListener('click', handleClick as any);
+    return () => document.removeEventListener('click', handleClick as any);
+  }, []);
 
   const handleCopy = async (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -64,6 +136,17 @@ export default function Home() {
     }
   };
 
+  const sectionIds = ['hero', 'featured-work', 'blog'];
+  const activeIndex = useActiveSection(sectionIds);
+
+  const handleNavigate = useCallback((index: number) => {
+    const targetId = sectionIds[index];
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [sectionIds]);
+
   return (
     <>
       <style>{`
@@ -83,15 +166,124 @@ export default function Home() {
         }
         .icon-enter { animation: iconFlipIn 0.25s ease-out forwards; }
         .text-fade { animation: textChange 0.2s ease-out forwards; }
+
+        .blog-row {
+          border-bottom: 1px dashed rgba(255,255,255,0.1);
+          position: relative;
+        }
+        .blog-row:first-child {
+          border-top: 1px dashed rgba(255,255,255,0.1);
+        }
+        
+        @media (min-width: 900px) {
+          .blog-link-padding {
+            padding: 18px 24px;
+          }
+        }
+        @media (min-width: 600px) and (max-width: 899px) {
+          .blog-link-padding {
+            padding: 16px 20px;
+          }
+        }
+        @media (max-width: 599px) {
+          .blog-link-padding {
+            padding: 14px 16px;
+          }
+        }
+
+        /* Crosshair animation keyframes */
+        @keyframes crosshairUp {
+          0% {
+            transform: translateY(0) scaleY(0);
+            opacity: 0.8;
+          }
+          100% {
+            transform: translateY(-60px) scaleY(1);
+            opacity: 0;
+          }
+        }
+        @keyframes crosshairDown {
+          0% {
+            transform: translateY(0) scaleY(0);
+            opacity: 0.8;
+          }
+          100% {
+            transform: translateY(60px) scaleY(1);
+            opacity: 0;
+          }
+        }
+        @keyframes crosshairLeft {
+          0% {
+            transform: translateX(0) scaleX(0);
+            opacity: 0.8;
+          }
+          100% {
+            transform: translateX(-60px) scaleX(1);
+            opacity: 0;
+          }
+        }
+        @keyframes crosshairRight {
+          0% {
+            transform: translateX(0) scaleX(0);
+            opacity: 0.8;
+          }
+          100% {
+            transform: translateX(60px) scaleX(1);
+            opacity: 0;
+          }
+        }
+        .crosshair-line {
+          position: fixed;
+          background: white;
+          width: 2px;
+          height: 2px;
+          pointer-events: none;
+          z-index: 9999;
+          will-change: transform, opacity;
+        }
+        .crosshair-line.up {
+          animation: crosshairUp 0.5s ease-out forwards;
+          transform-origin: center bottom;
+        }
+        .crosshair-line.down {
+          animation: crosshairDown 0.5s ease-out forwards;
+          transform-origin: center top;
+        }
+        .crosshair-line.left {
+          animation: crosshairLeft 0.5s ease-out forwards;
+          transform-origin: right center;
+        }
+        .crosshair-line.right {
+          animation: crosshairRight 0.5s ease-out forwards;
+          transform-origin: left center;
+        }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
-        {/* Hero section – unchanged */}
-        <div style={{ position: 'relative', overflow: 'hidden' }}>
+      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', position: 'relative' }}>
+        <VerticalScrollNav
+          sectionIds={sectionIds}
+          activeIndex={activeIndex}
+          onNavigate={handleNavigate}
+        />
+
+        {/* Crosshair overlay container */}
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 9998 }}>
+          {crosshairs.map((crosshair) => (
+            <div key={crosshair.id} style={{ position: 'absolute', left: crosshair.x, top: crosshair.y }}>
+              <div className="crosshair-line up" style={{ position: 'absolute', bottom: 0, left: -1, width: 2, height: 30 }} />
+              <div className="crosshair-line down" style={{ position: 'absolute', top: 0, left: -1, width: 2, height: 30 }} />
+              <div className="crosshair-line left" style={{ position: 'absolute', right: 0, top: -1, width: 30, height: 2 }} />
+              <div className="crosshair-line right" style={{ position: 'absolute', left: 0, top: -1, width: 30, height: 2 }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Hero section (unchanged) */}
+        <div id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
           <div style={{
             maxWidth: 1000,
             margin: '0 auto',
-            padding: '8rem 2.5rem 2rem',     
+            padding: '20px 2.5rem 2rem',
           }}>
             <h1 style={{
               fontSize: '52px',
@@ -102,8 +294,7 @@ export default function Home() {
               marginBottom: '1.5rem',
               fontFamily: 'Instrument Serif, serif',
             }}>
-              Hey, I'm Jeremiah Abban —<br />
-              UI/UX Designer
+              Jeremiah Abban - UI/UX Designer
             </h1>
             <p style={{
               fontSize: '16px',
@@ -120,7 +311,6 @@ export default function Home() {
             </p>
             
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              {/* Contact button – unchanged */}
               <div style={{ position: 'relative' }}>
                 <a
                   ref={buttonRef}
@@ -189,7 +379,6 @@ export default function Home() {
                 )}
               </div>
               
-              {/* LinkedIn icon – unchanged */}
               <a
                 href="https://linkedin.com/in/YOUR_USERNAME"
                 target="_blank"
@@ -223,7 +412,6 @@ export default function Home() {
                 </svg>
               </a>
 
-              {/* X icon – unchanged */}
               <a
                 href="https://twitter.com/YOUR_USERNAME"
                 target="_blank"
@@ -260,14 +448,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Featured Work section – now uses glassmorphism cards (2 columns) */}
-        <div style={{ padding: '4rem 2.5rem 6rem', maxWidth: 1000, margin: '0 auto' }}>
+        {/* Featured Work section (unchanged) */}
+        <div id="featured-work" style={{ padding: '4rem 2.5rem 20px', maxWidth: 1000, margin: '0 auto' }}>
           <div style={{
             fontSize: '13px',
-            fontWeight: 500,
+            fontWeight: 600,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.6)',
             marginBottom: '1rem',
             fontFamily: 'Instrument Serif, serif',
           }}>
@@ -301,7 +489,6 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                {/* Background gradient */}
                 <div
                   style={{
                     position: 'absolute',
@@ -315,8 +502,6 @@ export default function Home() {
                     zIndex: 0,
                   }}
                 />
-
-                {/* Glass overlay at bottom */}
                 <div
                   style={{
                     position: 'absolute',
@@ -329,8 +514,6 @@ export default function Home() {
                     pointerEvents: 'none',
                   }}
                 />
-
-                {/* Content */}
                 <div
                   style={{
                     position: 'relative',
@@ -351,41 +534,35 @@ export default function Home() {
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: '0.5rem',
+                      alignItems: 'flex-start',
+                      marginBottom: '0.25rem',
                     }}>
-                      <span style={{
-                        fontSize: 11,
-                        letterSpacing: '0.1em',
-                        textTransform: 'uppercase',
-                        color: 'rgba(255,255,255,0.7)',
+                      <h3 style={{
+                        fontSize: 18,
+                        fontWeight: 600,
+                        color: 'white',
                         fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                        letterSpacing: '-0.01em',
+                        margin: 0,
                       }}>
-                        FEATURED
-                      </span>
+                        {item.name}
+                      </h3>
                       <span style={{
-                        fontSize: 11,
-                        color: 'rgba(255,255,255,0.6)',
-                        fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                        fontSize: 13,
+                        fontFamily: 'Geist Mono, monospace',
+                        letterSpacing: '0.02em',
+                        color: 'rgba(255,255,255,0.5)',
+                        whiteSpace: 'nowrap',
                       }}>
                         2025
                       </span>
                     </div>
-                    <h3 style={{
-                      fontSize: 18,
-                      fontWeight: 600,
-                      color: 'white',
-                      marginBottom: '0.25rem',
-                      fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                      letterSpacing: '-0.01em',
-                    }}>
-                      {item.name}
-                    </h3>
                     <p style={{
                       fontSize: 12,
                       color: 'rgba(255,255,255,0.85)',
                       lineHeight: 1.4,
                       fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                      marginTop: '0.25rem',
                     }}>
                       {item.desc}
                     </p>
@@ -395,55 +572,114 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Blog section – unchanged */}
-          <div style={{
-            fontSize: '13px',
-            fontWeight: 500,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.3)',
-            marginBottom: '1rem',
-            marginTop: '4rem',
-            fontFamily: 'Instrument Serif, serif',
-          }}>
-            02. BLOG
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {blogPosts.map((post, i) => (
-              <Link
-                key={i}
-                href="/blog"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.85rem 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
-                  textDecoration: 'none',
-                  color: 'inherit',
-                }}
-              >
-                <span style={{
-                  fontSize: 13,
-                  color: 'rgba(255,255,255,0.65)',
-                  letterSpacing: '-0.01em',
-                  lineHeight: 1.4,
-                  paddingRight: '2rem',
-                  fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                }}>
-                  {post.title}
-                </span>
-                <span style={{
-                  fontSize: 11,
-                  color: 'rgba(255,255,255,0.25)',
-                  whiteSpace: 'nowrap',
-                  letterSpacing: '0.02em',
-                  fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                }}>
-                  {post.date}
-                </span>
-              </Link>
-            ))}
+          {/* Blog section (unchanged) */}
+          <div id="blog" style={{ marginTop: '4rem' }}>
+            <div style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.6)',
+              marginBottom: '20px',
+              fontFamily: 'Instrument Serif, serif',
+            }}>
+              02. BLOG
+            </div>
+
+            <div
+              ref={blogContainerRef}
+              style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}
+            >
+              <AnimatePresence>
+                {hoveredBlogIndex !== null && (
+                  <motion.div
+                    layoutId="blog-highlight"
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      y: highlightStyle.y,
+                      height: highlightStyle.height,
+                      opacity: 1,
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      background: 'rgba(255,255,255,0.05)',
+                      borderRadius: '14px',
+                      zIndex: 0,
+                      pointerEvents: 'none',
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+
+              {blogPosts.map((post, i) => (
+                <div
+                  key={i}
+                  ref={(el) => (blogRowRefs.current[i] = el)}
+                  className="blog-row"
+                  onMouseEnter={() => setHoveredBlogIndex(i)}
+                  onMouseLeave={() => setHoveredBlogIndex(null)}
+                  style={{ position: 'relative', zIndex: 1 }}
+                >
+                  <Link
+                    href="/blog"
+                    className="blog-link-padding"
+                    style={{
+                      display: 'block',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span
+                          style={{
+                            fontSize: '15px',
+                            fontWeight: 500,
+                            color: hoveredBlogIndex === i ? 'white' : 'rgba(255,255,255,0.85)',
+                            letterSpacing: '-0.01em',
+                            fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                            transition: 'color 0.2s ease',
+                          }}
+                        >
+                          {post.title}
+                        </span>
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          style={{
+                            transition: 'opacity 0.2s ease, transform 0.2s ease',
+                            opacity: hoveredBlogIndex === i ? 1 : 0,
+                            transform: hoveredBlogIndex === i ? 'translateX(2px)' : 'none',
+                          }}
+                        >
+                          <path d="M7 7h10v10M7 17L17 7" />
+                        </svg>
+                      </div>
+                      <span
+                        style={{
+                          fontSize: '13px',
+                          fontFamily: 'Geist Mono, monospace',
+                          letterSpacing: '0.02em',
+                          color: 'rgba(255,255,255,0.4)',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {post.date}
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

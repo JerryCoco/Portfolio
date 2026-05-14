@@ -3,7 +3,6 @@
 import './globals.css';
 import Nav from '@/components/Nav';   
 import Footer from '@/components/Footer';
-import ScrollIndicator from '@/components/ScrollIndicator';
 import { usePathname } from 'next/navigation';
 import { EB_Garamond, DM_Mono, Inter, Geist } from 'next/font/google';
 import { cn } from "@/lib/utils";
@@ -37,10 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={cn(ebGaramond.variable, dmMono.variable, "font-sans", geist.variable)}>
       <body>
         {!isSysPage && (
-          // pt-16 = 64px spacing from top - gives room for tooltip to appear above navbar
-          <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-16">
+          <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-6">
             <Nav 
-              items={navItems} 
+              items={navItems}
               magnification={1.6}
               distance={100}
               iconSize={44}
@@ -52,7 +50,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
         <main className="pt-0">{children}</main>
         {!isSysPage && <Footer />}
-        {!isSysPage && <ScrollIndicator />}
       </body>
     </html>
   );
