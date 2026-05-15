@@ -1,85 +1,122 @@
- 'use client';
+'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
-interface VerticalScrollNavProps {
-  sectionIds: string[];
-  activeIndex: number;
-  onNavigate: (index: number) => void;
+interface ScrollNavProps {
+  sections: string[];          // e.g. ['featured-work', 'blog']
+  ticksPerSection?: number;    // default 8
 }
 
-export function VerticalScrollNav({ sectionIds, activeIndex, onNavigate }: VerticalScrollNavProps) {
-  const formatNumber = (idx: number) => String(idx + 1).padStart(2, '0');
+export function ScrollNav({ sections, ticksPerSection = 8 }: ScrollNavProps) {
+  const totalTicks = sections.length * ticksPerSection;
+  const [activeTick, setActiveTick] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+
+  // Visibility: when either section is in view (from hero to blog bottom)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (!sections.length) return;
+      const firstEl = document.getElementById(sections[0]);
+      const lastEl = document.getElementById(sections[sections.length - 1]);
+      if (!firstEl || !lastEl) return;
+
+      const firstRect = firstEl.getBoundingClientRect();
+      const lastRect = lastEl.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      const inRange = firstRect.top < viewportHeight && lastRect.bottom > 0;
+      setIsVisible(inRange);
+    };
+
+    window.addEventListener('scroll', handleVisibility);
+    handleVisibility();
+    return () => window.removeEventListener('scroll', handleVisibility);
+  }, [sections]);
+
+  // Scroll progress between first section's top and last section's bottom
+  useEffect(() => {
+    const handleScrollProgress = () => {
+      const firstEl = document.getElementById(sections[0]);
+      const lastEl = document.getElementById(sections[sections.length - 1]);
+      if (!firstEl || !lastEl) return;
+
+      const firstRect = firstEl.getBoundingClientRect();
+      const lastRect = lastEl.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      // Range: from firstRect.top (when it meets viewport top) to lastRect.bottom - viewportHeight
+      const rangeStart = firstRect.top;
+      const rangeEnd = lastRect.bottom - viewportHeight;
+
+      let progress = 0;
+      if (rangeStart < 0 && rangeEnd > 0) {
+        progress = -rangeStart / (rangeStart - rangeEnd);
+      } else if (rangeStart <= 0 && rangeEnd <= 0) {
+        progress = 1;
+      } else if (rangeStart >= 0 && rangeEnd >= 0) {
+        progress = 0;
+      }
+      progress = Math.min(1, Math.max(0, progress));
+
+      const tickIndex = Math.min(Math.round(progress * (totalTicks - 1)), totalTicks - 1);
+      setActiveTick(tickIndex);
+    };
+
+    window.addEventListener('scroll', handleScrollProgress);
+    handleScrollProgress();
+    return () => window.removeEventListener('scroll', handleScrollProgress);
+  }, [sections, totalTicks]);
 
   return (
-    <div className="fixed right-6 md:right-10 top-1/2 -translate-y-1/2 z-[100]"> {/* increased z-index */}
-      <div className="relative bg-black/90 backdrop-blur-md rounded-full py-6 px-4 md:py-8 md:px-5 shadow-2xl border border-white/10">
-        <div className="flex flex-col items-center gap-2 md:gap-3">
-          {sectionIds.map((_, idx) => (
-            <div key={idx} className="flex flex-col items-center">
-              <button
-                onClick={() => onNavigate(idx)}
-                className={`text-base md:text-lg font-medium tracking-wide transition-all duration-300 focus:outline-none ${
-                  idx === activeIndex
-                    ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]'
-                    : 'text-white/40 hover:text-white/80'
-                }`}
-                aria-label={`Section ${formatNumber(idx)}`}
-              >
-                <span className="flex items-center gap-2">
-                  {formatNumber(idx)}
-                  {idx === activeIndex && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
+    <div
+      className={cn(
+        "fixed right-6 md:right-10 top-1/2 -translate-y-1/2 z-[100] transition-all duration-500",
+        isVisible ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      )}
+    >
+      <div className="bg-black/90 backdrop-blur-md rounded-full py-6 px-3 shadow-2xl border border-white/10">
+        <div className="flex flex-col items-center gap-4">
+          {sections.map((_, sectionIdx) => {
+            const startTick = sectionIdx * ticksPerSection;
+            const endTick = startTick + ticksPerSection;
+            const isActiveSection = activeTick >= startTick && activeTick < endTick;
+
+            return (
+              <div key={sectionIdx} className="flex flex-col items-center">
+                {/* Section number */}
+                <span
+                  className={cn(
+                    "text-xs font-mono transition-colors duration-300",
+                    isActiveSection ? "text-white" : "text-white/40"
                   )}
+                >
+                  {String(sectionIdx + 1).padStart(2, '0')}
                 </span>
-              </button>
-              {idx < sectionIds.length - 1 && (
-                <div className="w-5 md:w-6 h-px bg-white/20 my-2 md:my-3 rounded-full" />
-              )}
-            </div>
-          ))}
+
+                {/* Ticks for this section */}
+                <div className="flex flex-col items-center mt-2 gap-1.5">
+                  {Array.from({ length: ticksPerSection }).map((_, tickIdx) => {
+                    const globalIdx = startTick + tickIdx;
+                    const isActive = globalIdx === activeTick;
+                    return (
+                      <div
+                        key={tickIdx}
+                        className={cn(
+                          "h-px rounded-full transition-all duration-300",
+                          isActive
+                            ? "w-4 bg-white"     // longer, bright
+                            : "w-2 bg-white/20"  // shorter, dim
+                        )}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
   );
-}
-
-export function useActiveSection(sectionIds: string[]) {
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    // If no sections, do nothing
-    if (!sectionIds.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        // Find the section with the highest visible ratio
-        let bestIndex = -1;
-        let bestRatio = 0;
-        entries.forEach((entry) => {
-          const idx = sectionIds.findIndex(id => id === entry.target.id);
-          if (idx !== -1 && entry.intersectionRatio > bestRatio) {
-            bestRatio = entry.intersectionRatio;
-            bestIndex = idx;
-          }
-        });
-        if (bestIndex !== -1 && bestIndex !== activeIndex) {
-          setActiveIndex(bestIndex);
-        }
-      },
-      { threshold: [0.1, 0.3, 0.5, 0.7], rootMargin: '-10% 0px -10% 0px' }
-    );
-
-    // Observe each section element
-    sectionIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [sectionIds, activeIndex]);  
-
-  return activeIndex;
 }

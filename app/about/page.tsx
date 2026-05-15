@@ -7,12 +7,12 @@ export default function About() {
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
       `}</style>
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
-        {/* About Header */}
+        {/* About Header – now matches homepage spacing */}
         <div style={{ position: 'relative', overflow: 'hidden' }}>
           <div style={{
             maxWidth: 1000,
             margin: '0 auto',
-            padding: '8rem 2.5rem 2rem',     
+            padding: '20px 2.5rem 2rem',          // ✅ changed from 8rem to 20px
           }}>
             <h1 style={{
               fontSize: '52px',
@@ -51,7 +51,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* Main content */}
+        {/* Main content (same as before, unchanged) */}
         <div style={{ padding: '0rem 2.5rem 6rem', maxWidth: 1000, margin: '0 auto' }}>
           {/* Experience Section */}
           <div style={{ marginBottom: '3rem' }}>
@@ -270,7 +270,6 @@ export default function About() {
               gridTemplateColumns: '1fr 1fr',
               gap: '2rem',
             }}>
-              {/* Left Column */}
               <div>
                 <div style={{ marginBottom: '1.5rem' }}>
                   <div style={{
@@ -319,7 +318,6 @@ export default function About() {
                 </div>
               </div>
               
-              {/* Right Column */}
               <div>
                 <div style={{ marginBottom: '1.5rem' }}>
                   <div style={{

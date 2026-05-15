@@ -2,9 +2,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useRef, MouseEvent, useCallback, useEffect } from 'react';
+import { useState, useRef, MouseEvent, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { VerticalScrollNav, useActiveSection } from '@/components/ScrollNav';
+import { ScrollNav } from '@/components/ScrollNav';
 
 const blogPosts = [
   { title: "Recreating Antimetal's Hero Animation With a Canvas Dot Grid", date: "Apr 2026" },
@@ -109,22 +109,6 @@ export default function Home() {
     }
   };
 
-  // Section IDs for vertical scroll nav – hero is included for observer but excluded from nav
-  const allSections = ['hero', 'featured-work', 'blog'];
-  const activeIndex = useActiveSection(allSections); // returns 0,1,2
-  const navSectionIds = allSections.filter(id => id !== 'hero'); // only featured-work, blog
-  // Map active index: if hero (0) -> -1 (no active), else activeIndex-1 (0 for featured, 1 for blog)
-  const navActiveIndex = activeIndex === 0 ? -1 : activeIndex - 1;
-
-  const handleNavigate = useCallback((index: number) => {
-    // index here is 0 for featured-work, 1 for blog
-    const targetId = navSectionIds[index];
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [navSectionIds]);
-
   return (
     <>
       <style>{`
@@ -171,12 +155,8 @@ export default function Home() {
       `}</style>
 
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', position: 'relative' }}>
-        {/* Vertical scroll navigation – shows only 01 (Featured Work) and 02 (Blog) */}
-        <VerticalScrollNav
-          sectionIds={navSectionIds}
-          activeIndex={navActiveIndex}
-          onNavigate={handleNavigate}
-        />
+        {/* Scroll ruler – shows progress between Featured Work and Blog */}
+        <ScrollNav sections={['featured-work', 'blog']} ticksPerSection={8} />
 
         {/* Hero section */}
         <div id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
