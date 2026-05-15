@@ -32,7 +32,7 @@ body {
   overflow-x: hidden;
   padding-left: 2rem;
   padding-right: 2rem;
-  padding-top: 52px;   /* ← FIX: prevents content from being hidden under fixed navbar */
+  padding-top: 52px;
 }
 
 /* NAV */
@@ -231,7 +231,7 @@ nav {
   overflow: hidden;
   margin-left: -2rem;
   margin-right: -2rem;
-  margin-top: -52px;   /* ← FIX: cancels body padding-top on sys63 page (where navbar is hidden) */
+  margin-top: -52px;
 }
 .sys63-bg {
   position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -435,5 +435,31 @@ nav {
   :root {
     --background: #0d0d0d;
     --foreground: #e8e6e0;
+  }
+}
+
+/* ========== CLICK SPARK EFFECT ========== */
+.click-spark {
+  position: fixed;
+  width: 2px;
+  border-radius: 99px;
+  background: #ffffff;
+  pointer-events: none;
+  transform-origin: bottom center;
+  animation: sparkOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sparkOut {
+  0% {
+    transform: scaleY(0) rotate(var(--angle)) translateY(0);
+    opacity: 0.9;
+  }
+  30% {
+    transform: scaleY(1) rotate(var(--angle)) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1) rotate(var(--angle)) translateY(-160%);
+    opacity: 0;
   }
 }

@@ -1,9 +1,10 @@
+// app/page.tsx
 'use client';
 
 import Link from 'next/link';
 import { useState, useRef, MouseEvent, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { VerticalScrollNav, useActiveSection } from '../components/vertical-scroll-nav';
+import { motion, AnimatePresence } from 'framer-motion';
+import { VerticalScrollNav, useActiveSection } from '@/components/ScrollNav';
 
 const blogPosts = [
   { title: "Recreating Antimetal's Hero Animation With a Canvas Dot Grid", date: "Apr 2026" },
@@ -40,21 +41,11 @@ const featuredWork = [
   },
 ];
 
-// Type for a crosshair effect
-interface Crosshair {
-  id: number;
-  x: number;
-  y: number;
-}
-
 export default function Home() {
   const [copied, setCopied] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLAnchorElement>(null);
-
-  // Crosshair effect state
-  const [crosshairs, setCrosshairs] = useState<Crosshair[]>([]);
 
   // Blog shared layout animation state
   const blogContainerRef = useRef<HTMLDivElement>(null);
@@ -99,27 +90,9 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, [hoveredBlogIndex]);
 
-  // Crosshair effect: listen to clicks anywhere
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const crosshair: Crosshair = {
-        id: Date.now() + Math.random(),
-        x: e.clientX,
-        y: e.clientY,
-      };
-      setCrosshairs((prev) => [...prev, crosshair]);
-      // Remove crosshair after animation ends (500ms)
-      setTimeout(() => {
-        setCrosshairs((prev) => prev.filter((c) => c.id !== crosshair.id));
-      }, 500);
-    };
-    document.addEventListener('click', handleClick as any);
-    return () => document.removeEventListener('click', handleClick as any);
-  }, []);
-
   const handleCopy = async (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const email = 'jeremiah@example.com';
+    const email = 'abbanjerry001@gmail.com';
     await navigator.clipboard.writeText(email);
     setCopied(true);
     setShowTooltip(false);
@@ -136,16 +109,21 @@ export default function Home() {
     }
   };
 
-  const sectionIds = ['hero', 'featured-work', 'blog'];
-  const activeIndex = useActiveSection(sectionIds);
+  // Section IDs for vertical scroll nav – hero is included for observer but excluded from nav
+  const allSections = ['hero', 'featured-work', 'blog'];
+  const activeIndex = useActiveSection(allSections); // returns 0,1,2
+  const navSectionIds = allSections.filter(id => id !== 'hero'); // only featured-work, blog
+  // Map active index: if hero (0) -> -1 (no active), else activeIndex-1 (0 for featured, 1 for blog)
+  const navActiveIndex = activeIndex === 0 ? -1 : activeIndex - 1;
 
   const handleNavigate = useCallback((index: number) => {
-    const targetId = sectionIds[index];
+    // index here is 0 for featured-work, 1 for blog
+    const targetId = navSectionIds[index];
     const element = document.getElementById(targetId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [sectionIds]);
+  }, [navSectionIds]);
 
   return (
     <>
@@ -190,95 +168,17 @@ export default function Home() {
             padding: 14px 16px;
           }
         }
-
-        /* Crosshair animation keyframes */
-        @keyframes crosshairUp {
-          0% {
-            transform: translateY(0) scaleY(0);
-            opacity: 0.8;
-          }
-          100% {
-            transform: translateY(-60px) scaleY(1);
-            opacity: 0;
-          }
-        }
-        @keyframes crosshairDown {
-          0% {
-            transform: translateY(0) scaleY(0);
-            opacity: 0.8;
-          }
-          100% {
-            transform: translateY(60px) scaleY(1);
-            opacity: 0;
-          }
-        }
-        @keyframes crosshairLeft {
-          0% {
-            transform: translateX(0) scaleX(0);
-            opacity: 0.8;
-          }
-          100% {
-            transform: translateX(-60px) scaleX(1);
-            opacity: 0;
-          }
-        }
-        @keyframes crosshairRight {
-          0% {
-            transform: translateX(0) scaleX(0);
-            opacity: 0.8;
-          }
-          100% {
-            transform: translateX(60px) scaleX(1);
-            opacity: 0;
-          }
-        }
-        .crosshair-line {
-          position: fixed;
-          background: white;
-          width: 2px;
-          height: 2px;
-          pointer-events: none;
-          z-index: 9999;
-          will-change: transform, opacity;
-        }
-        .crosshair-line.up {
-          animation: crosshairUp 0.5s ease-out forwards;
-          transform-origin: center bottom;
-        }
-        .crosshair-line.down {
-          animation: crosshairDown 0.5s ease-out forwards;
-          transform-origin: center top;
-        }
-        .crosshair-line.left {
-          animation: crosshairLeft 0.5s ease-out forwards;
-          transform-origin: right center;
-        }
-        .crosshair-line.right {
-          animation: crosshairRight 0.5s ease-out forwards;
-          transform-origin: left center;
-        }
       `}</style>
 
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', position: 'relative' }}>
+        {/* Vertical scroll navigation – shows only 01 (Featured Work) and 02 (Blog) */}
         <VerticalScrollNav
-          sectionIds={sectionIds}
-          activeIndex={activeIndex}
+          sectionIds={navSectionIds}
+          activeIndex={navActiveIndex}
           onNavigate={handleNavigate}
         />
 
-        {/* Crosshair overlay container */}
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 9998 }}>
-          {crosshairs.map((crosshair) => (
-            <div key={crosshair.id} style={{ position: 'absolute', left: crosshair.x, top: crosshair.y }}>
-              <div className="crosshair-line up" style={{ position: 'absolute', bottom: 0, left: -1, width: 2, height: 30 }} />
-              <div className="crosshair-line down" style={{ position: 'absolute', top: 0, left: -1, width: 2, height: 30 }} />
-              <div className="crosshair-line left" style={{ position: 'absolute', right: 0, top: -1, width: 30, height: 2 }} />
-              <div className="crosshair-line right" style={{ position: 'absolute', left: 0, top: -1, width: 30, height: 2 }} />
-            </div>
-          ))}
-        </div>
-
-        {/* Hero section (unchanged) */}
+        {/* Hero section */}
         <div id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
           <div style={{
             maxWidth: 1000,
@@ -294,7 +194,8 @@ export default function Home() {
               marginBottom: '1.5rem',
               fontFamily: 'Instrument Serif, serif',
             }}>
-              Jeremiah Abban - UI/UX Designer
+              Jeremiah Abban{' '}
+              <span style={{ color: 'rgba(255,255,255,0.5)' }}>- UI/UX Designer</span>
             </h1>
             <p style={{
               fontSize: '16px',
@@ -314,7 +215,7 @@ export default function Home() {
               <div style={{ position: 'relative' }}>
                 <a
                   ref={buttonRef}
-                  href="#"
+                  href="mailto:abbanjerry001@gmail.com"
                   onClick={handleCopy}
                   onMouseEnter={() => !copied && setShowTooltip(true)}
                   onMouseLeave={() => setShowTooltip(false)}
@@ -374,7 +275,7 @@ export default function Home() {
                     fontFamily: 'Geist, Inter, system-ui, sans-serif',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                   }}>
-                    Copy email
+                    Copy email & open mail app
                   </span>
                 )}
               </div>
@@ -448,7 +349,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Featured Work section (unchanged) */}
+        {/* Featured Work section */}
         <div id="featured-work" style={{ padding: '4rem 2.5rem 20px', maxWidth: 1000, margin: '0 auto' }}>
           <div style={{
             fontSize: '13px',
@@ -572,7 +473,7 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Blog section (unchanged) */}
+          {/* Blog section */}
           <div id="blog" style={{ marginTop: '4rem' }}>
             <div style={{
               fontSize: '13px',

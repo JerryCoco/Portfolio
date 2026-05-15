@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import { usePathname } from 'next/navigation';
 import { EB_Garamond, DM_Mono, Inter, Geist } from 'next/font/google';
 import { cn } from "@/lib/utils";
+import useClickSpark from './hooks/useClickSpark';  
 import { 
   House, 
   UserRound, 
@@ -31,6 +32,8 @@ const navItems = [
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isSysPage = pathname === '/sys63';
+
+  useClickSpark(); // works globally
 
   return (
     <html lang="en" className={cn(ebGaramond.variable, dmMono.variable, "font-sans", geist.variable)}>
