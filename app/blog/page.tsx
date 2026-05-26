@@ -1,42 +1,43 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import Link from 'next/link';
+import { posts } from '@/lib/blog';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const posts = [
-  { title: "Recreating Antimetal's Hero Animation With a Canvas Dot Grid", date: "Apr 2026", category: 'design', slug: 'antimetal-hero' },
-  { title: "A Procedural ASCII Art Engine with 27 Animations", date: "Apr 2026", category: 'writings', slug: 'ascii-art-engine' },
-  { title: "Building a Real-Time Collaboration Layer in Next.js", date: "Mar 2026", category: 'design', slug: 'collab-layer' },
-  { title: "Type Systems Are the Best UI Design Tool", date: "Mar 2026", category: 'writings', slug: 'type-systems' },
-  { title: "The Architecture Behind My Sys63 OS Interface", date: "Feb 2026", category: 'design', slug: 'sys63-architecture' },
-];
-
-const filters = ['All', 'Writings', 'Design'];
+const categories = ['all', 'design', 'writings'];
 
 export default function Blog() {
-  const [activeFilter, setActiveFilter] = useState('All');
-
-  const filteredPosts = activeFilter === 'All'
-    ? posts
-    : posts.filter(p => p.category === activeFilter.toLowerCase());
-
-  // Shared layout animation for hover highlight
-  const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [active, setActive] = useState('all');
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [highlightStyle, setHighlightStyle] = useState({ y: 0, height: 0 });
 
-  // ✨ GAP SETTINGS – space between highlight and dashed borders
-  const HIGHLIGHT_MARGIN_TOP = 6;    // gap above
-  const HIGHLIGHT_MARGIN_BOTTOM = 6; // gap below
+  const listRef = useRef<HTMLDivElement>(null);
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Update highlight position when hovered index changes
+  const HIGHLIGHT_MARGIN_TOP = 6;
+  const HIGHLIGHT_MARGIN_BOTTOM = 6;
+
+  const filtered = active === 'all' ? posts : posts.filter((p) => p.category === active);
+
   useEffect(() => {
-    if (hoveredIndex !== null && itemRefs.current[hoveredIndex]) {
-      const row = itemRefs.current[hoveredIndex];
-      const container = containerRef.current;
-      if (row && container) {
+    if (hoveredIndex !== null && rowRefs.current[hoveredIndex] && listRef.current) {
+      const row = rowRefs.current[hoveredIndex]!;
+      const container = listRef.current;
+      const rowRect = row.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      setHighlightStyle({
+        y: rowRect.top - containerRect.top + HIGHLIGHT_MARGIN_TOP,
+        height: rowRect.height - HIGHLIGHT_MARGIN_TOP - HIGHLIGHT_MARGIN_BOTTOM,
+      });
+    }
+  }, [hoveredIndex]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (hoveredIndex !== null && rowRefs.current[hoveredIndex] && listRef.current) {
+        const row = rowRefs.current[hoveredIndex]!;
+        const container = listRef.current;
         const rowRect = row.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
         setHighlightStyle({
@@ -44,110 +45,113 @@ export default function Blog() {
           height: rowRect.height - HIGHLIGHT_MARGIN_TOP - HIGHLIGHT_MARGIN_BOTTOM,
         });
       }
-    }
-  }, [hoveredIndex, HIGHLIGHT_MARGIN_TOP, HIGHLIGHT_MARGIN_BOTTOM]);
-
-  // Recalculate on window resize
-  useEffect(() => {
-    const handleResize = () => {
-      if (hoveredIndex !== null && itemRefs.current[hoveredIndex]) {
-        const row = itemRefs.current[hoveredIndex];
-        const container = containerRef.current;
-        if (row && container) {
-          const rowRect = row.getBoundingClientRect();
-          const containerRect = container.getBoundingClientRect();
-          setHighlightStyle({
-            y: rowRect.top - containerRect.top + HIGHLIGHT_MARGIN_TOP,
-            height: rowRect.height - HIGHLIGHT_MARGIN_TOP - HIGHLIGHT_MARGIN_BOTTOM,
-          });
-        }
-      }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [hoveredIndex, HIGHLIGHT_MARGIN_TOP, HIGHLIGHT_MARGIN_BOTTOM]);
+  }, [hoveredIndex]);
 
   return (
     <>
       <style>{`
-        /* Dashed borders – matches homepage blog section */
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+
         .blog-row {
-          border-bottom: 1px dashed rgba(255,255,255,0.1);
           position: relative;
+          z-index: 1;
         }
-        .blog-row:first-child {
-          border-top: 1px dashed rgba(255,255,255,0.1);
+        .blog-row::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          border-bottom: 1px dashed rgba(255,255,255,0.15);
+          pointer-events: none;
+          z-index: 3;
         }
-        
-        /* Responsive padding for blog links – exactly as homepage */
-        @media (min-width: 900px) {
-          .blog-link-padding {
-            padding: 18px 24px;
-          }
+
+        .blog-filter-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          font-family: Geist, Inter, sans-serif;
+          transition: color 0.2s;
         }
-        @media (min-width: 600px) and (max-width: 899px) {
-          .blog-link-padding {
-            padding: 16px 20px;
-          }
-        }
-        @media (max-width: 599px) {
-          .blog-link-padding {
-            padding: 14px 16px;
-          }
-        }
+        .blog-filter-btn:hover { color: white !important; }
+
+        @media (min-width: 900px) { .blog-link-padding { padding: 18px 24px; } }
+        @media (min-width: 600px) and (max-width: 899px) { .blog-link-padding { padding: 16px 20px; } }
+        @media (max-width: 599px) { .blog-link-padding { padding: 14px 16px; } }
       `}</style>
 
-      <div className="page active" style={{ paddingTop: '52px' }}>
-        <div style={{ padding: '4rem 2rem', maxWidth: 1000, margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Instrument Serif, serif', fontSize: '3rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
+        <div style={{ padding: '28px 2.5rem 5rem', maxWidth: 1000, margin: '0 auto' }}>
+
+          <h1 style={{
+            fontFamily: 'Instrument Serif, serif',
+            fontSize: 52,
+            fontWeight: 500,
+            lineHeight: 1.15,
+            letterSpacing: '-0.02em',
+            color: 'rgba(255,255,255,0.92)',
+            marginBottom: '0.75rem',
+          }}>
             Blog
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '2rem' }}>
-            Experiments, prototypes, and creative explorations—filter by category or browse the list.
+          <p style={{
+            fontSize: 16,
+            color: 'rgba(255,255,255,0.5)',
+            marginBottom: '2rem',
+            fontFamily: 'Geist, Inter, system-ui, sans-serif',
+          }}>
+            Thoughts on design, engineering, and building things.
           </p>
 
           {/* Filter tabs */}
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.75rem' }}>
-            {filters.map(f => (
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            marginBottom: '2rem',
+            borderBottom: '0.5px solid rgba(255,255,255,0.08)',
+            paddingBottom: '0.75rem',
+          }}>
+            {categories.map((cat) => (
               <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
+                key={cat}
+                onClick={() => setActive(cat)}
+                className="blog-filter-btn"
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: activeFilter === f ? 'white' : 'rgba(255,255,255,0.5)',
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '20px',
-                  transition: 'color 0.2s',
-                  fontFamily: 'Geist, Inter, sans-serif',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = 'white'}
-                onMouseLeave={e => {
-                  if (activeFilter !== f) e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
+                  color: active === cat ? 'white' : 'rgba(255,255,255,0.5)',
                 }}
               >
-                {f}
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
               </button>
             ))}
           </div>
 
-          {/* Blog list with vertical gaps on hover highlight */}
-          <div
-            ref={containerRef}
-            style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}
-          >
+          {/* Post list */}
+          <div ref={listRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
+
+            {/* Top border at z-index 3 — always above the highlight layer */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              borderTop: '1px dashed rgba(255,255,255,0.15)',
+              zIndex: 3,
+              pointerEvents: 'none',
+            }} />
+
             <AnimatePresence>
               {hoveredIndex !== null && (
                 <motion.div
                   layoutId="blog-highlight"
                   initial={{ opacity: 0 }}
-                  animate={{
-                    y: highlightStyle.y,
-                    height: highlightStyle.height,
-                    opacity: 1,
-                  }}
+                  animate={{ y: highlightStyle.y, height: highlightStyle.height, opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   style={{
@@ -163,10 +167,10 @@ export default function Blog() {
               )}
             </AnimatePresence>
 
-            {filteredPosts.map((post, i) => (
+            {filtered.map((post, i) => (
               <div
                 key={post.slug}
-                ref={(el) => { itemRefs.current[i] = el; }}
+                ref={(el) => (rowRefs.current[i] = el)}
                 className="blog-row"
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
@@ -175,35 +179,24 @@ export default function Blog() {
                 <Link
                   href={`/blog/${post.slug}`}
                   className="blog-link-padding"
-                  style={{
-                    display: 'block',
-                    textDecoration: 'none',
-                  }}
+                  style={{ display: 'block', textDecoration: 'none' }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span
-                        style={{
-                          fontSize: '15px',
-                          fontWeight: 500,
-                          color: hoveredIndex === i ? 'white' : 'rgba(255,255,255,0.85)',
-                          letterSpacing: '-0.01em',
-                          fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                          transition: 'color 0.2s ease',
-                        }}
-                      >
+                      <span style={{
+                        fontSize: '15px',
+                        fontWeight: 500,
+                        color: hoveredIndex === i ? 'white' : 'rgba(255,255,255,0.85)',
+                        letterSpacing: '-0.01em',
+                        fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                        transition: 'color 0.2s ease',
+                      }}>
                         {post.title}
                       </span>
-                      {/* Arrow icon – 16x16 (can be changed) */}
                       <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                        width="16" height="16" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" strokeWidth="2"
+                        strokeLinecap="round" strokeLinejoin="round"
                         style={{
                           transition: 'opacity 0.2s ease, transform 0.2s ease',
                           opacity: hoveredIndex === i ? 1 : 0,
@@ -213,15 +206,13 @@ export default function Blog() {
                         <path d="M7 7h10v10M7 17L17 7" />
                       </svg>
                     </div>
-                    <span
-                      style={{
-                        fontSize: '13px',
-                        fontFamily: 'Geist Mono, monospace',
-                        letterSpacing: '0.02em',
-                        color: 'rgba(255,255,255,0.4)',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
+                    <span style={{
+                      fontSize: '13px',
+                      fontFamily: 'Geist Mono, monospace',
+                      letterSpacing: '0.02em',
+                      color: 'rgba(255,255,255,0.4)',
+                      whiteSpace: 'nowrap',
+                    }}>
                       {post.date}
                     </span>
                   </div>
@@ -229,6 +220,19 @@ export default function Blog() {
               </div>
             ))}
           </div>
+
+          {filtered.length === 0 && (
+            <div style={{
+              textAlign: 'center',
+              padding: '4rem',
+              color: 'rgba(255,255,255,0.3)',
+              fontFamily: 'Geist, Inter, sans-serif',
+              fontSize: 14,
+            }}>
+              No posts in this category.
+            </div>
+          )}
+
         </div>
       </div>
     </>

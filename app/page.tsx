@@ -1,10 +1,9 @@
-// app/page.tsx
 'use client';
 
 import Link from 'next/link';
 import { useState, useRef, MouseEvent, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ScrollNav } from '@/components/ScrollNav';
+import ScrollNav from '@/components/ScrollNav';
 
 const blogPosts = [
   { title: "Recreating Antimetal's Hero Animation With a Canvas Dot Grid", date: "Apr 2026" },
@@ -20,24 +19,28 @@ const featuredWork = [
     desc: '0-1 health companion product',
     gradient: 'radial-gradient(circle at 30% 40%, #0f1f0f, #0a150a, #1a3a1a)',
     icon: '💊',
+    slug: 'holovita-ai',
   },
   {
     name: 'Hyperlink (Nexa AI)',
     desc: 'Brand and coded UI for on-device AI',
     gradient: 'radial-gradient(circle at 70% 20%, #1a2a4a, #0d1830, #2a4a6a)',
     icon: '🔗',
+    slug: 'hyperlink-nexa',
   },
   {
     name: 'Sys63',
     desc: 'WebOS designed in code.',
     gradient: 'radial-gradient(circle at 20% 80%, #1a1a2e, #0d0d1a, #2a2a4a)',
     icon: '🖥️',
+    slug: 'sys63',
   },
   {
     name: 'Windows 11',
     desc: 'Design at Windows Design Team',
     gradient: 'radial-gradient(circle at 50% 50%, #0a1628, #1a3a5c, #2a5a8a)',
     icon: '🪟',
+    slug: 'windows-11',
   },
 ];
 
@@ -47,7 +50,6 @@ export default function Home() {
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLAnchorElement>(null);
 
-  // Blog shared layout animation state
   const blogContainerRef = useRef<HTMLDivElement>(null);
   const blogRowRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [hoveredBlogIndex, setHoveredBlogIndex] = useState<number | null>(null);
@@ -92,8 +94,7 @@ export default function Home() {
 
   const handleCopy = async (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const email = 'abbanjerry001@gmail.com';
-    await navigator.clipboard.writeText(email);
+    await navigator.clipboard.writeText('abbanjerry001@gmail.com');
     setCopied(true);
     setShowTooltip(false);
     setTimeout(() => setCopied(false), 2000);
@@ -114,10 +115,6 @@ export default function Home() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
         
-        @keyframes iconFlipOut {
-          0% { transform: scale(1) rotate(0deg); opacity: 1; }
-          100% { transform: scale(0) rotate(-90deg); opacity: 0; }
-        }
         @keyframes iconFlipIn {
           0% { transform: scale(0) rotate(90deg); opacity: 0; }
           100% { transform: scale(1) rotate(0deg); opacity: 1; }
@@ -129,42 +126,32 @@ export default function Home() {
         .icon-enter { animation: iconFlipIn 0.25s ease-out forwards; }
         .text-fade { animation: textChange 0.2s ease-out forwards; }
 
+        /* FIX: Dotted lines stay static on hover */
         .blog-row {
-          border-bottom: 1px dashed rgba(255,255,255,0.1);
           position: relative;
+          z-index: 1;
         }
-        .blog-row:first-child {
-          border-top: 1px dashed rgba(255,255,255,0.1);
+        .blog-row::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          border-bottom: 1px dashed rgba(255,255,255,0.15);
+          pointer-events: none;
+          z-index: 3;
         }
         
-        @media (min-width: 900px) {
-          .blog-link-padding {
-            padding: 18px 24px;
-          }
-        }
-        @media (min-width: 600px) and (max-width: 899px) {
-          .blog-link-padding {
-            padding: 16px 20px;
-          }
-        }
-        @media (max-width: 599px) {
-          .blog-link-padding {
-            padding: 14px 16px;
-          }
-        }
+        @media (min-width: 900px) { .blog-link-padding { padding: 18px 24px; } }
+        @media (min-width: 600px) and (max-width: 899px) { .blog-link-padding { padding: 16px 20px; } }
+        @media (max-width: 599px) { .blog-link-padding { padding: 14px 16px; } }
       `}</style>
 
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', position: 'relative' }}>
-        {/* Scroll ruler – shows progress between Featured Work and Blog */}
         <ScrollNav sections={['featured-work', 'blog']} ticksPerSection={8} />
 
-        {/* Hero section */}
         <div id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
-          <div style={{
-            maxWidth: 1000,
-            margin: '0 auto',
-            padding: '20px 2.5rem 2rem',
-          }}>
+          <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px 2.5rem 2rem' }}>
             <h1 style={{
               fontSize: '52px',
               fontWeight: 500,
@@ -175,7 +162,7 @@ export default function Home() {
               fontFamily: 'Instrument Serif, serif',
             }}>
               Jeremiah Abban{' '}
-              <span style={{ color: 'rgba(255,255,255,0.5)' }}>- UI/UX Designer</span>
+              <span style={{ color: 'rgba(255,255,255,0.5)' }}>- Designer Engineer</span>
             </h1>
             <p style={{
               fontSize: '16px',
@@ -197,9 +184,15 @@ export default function Home() {
                   ref={buttonRef}
                   href="mailto:abbanjerry001@gmail.com"
                   onClick={handleCopy}
-                  onMouseEnter={() => !copied && setShowTooltip(true)}
-                  onMouseLeave={() => setShowTooltip(false)}
                   onMouseMove={handleMouseMove}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = '#1a1a1a';
+                    if (!copied) setShowTooltip(true);
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = '#000000';
+                    setShowTooltip(false);
+                  }}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -219,8 +212,6 @@ export default function Home() {
                                 inset -1px 0 2px 0 rgba(255,255,255,0.4),
                                 inset 0 3px 2px 0 rgba(255,255,255,0.4)`,
                   }}
-                  onMouseEnterCapture={e => e.currentTarget.style.background = '#1a1a1a'}
-                  onMouseLeaveCapture={e => e.currentTarget.style.background = '#000000'}
                 >
                   <div style={{ position: 'relative', width: 14, height: 14, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                     {!copied ? (
@@ -255,7 +246,7 @@ export default function Home() {
                     fontFamily: 'Geist, Inter, system-ui, sans-serif',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                   }}>
-                    Copy email & open mail app
+                    Copy email 
                   </span>
                 )}
               </div>
@@ -329,7 +320,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Featured Work section */}
         <div id="featured-work" style={{ padding: '4rem 2.5rem 20px', maxWidth: 1000, margin: '0 auto' }}>
           <div style={{
             fontSize: '13px',
@@ -343,48 +333,38 @@ export default function Home() {
             01. FEATURED WORK
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '1.5rem',
-          }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
             {featuredWork.map((item, idx) => (
-              <div
-                key={idx}
-                style={{
-                  position: 'relative',
-                  borderRadius: '1rem',
-                  overflow: 'hidden',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                  cursor: 'pointer',
-                  backgroundColor: '#0d0d0d',
-                  aspectRatio: '4 / 5',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
+              <Link key={idx} href={`/projects/${item.slug}`} style={{ textDecoration: 'none' }}>
                 <div
                   style={{
+                    position: 'relative',
+                    borderRadius: '1rem',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                    cursor: 'pointer',
+                    backgroundColor: '#0d0d0d',
+                    aspectRatio: '4 / 5',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'scale(1.02)';
+                    e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{
                     position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
+                    inset: 0,
                     backgroundImage: item.gradient,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     zIndex: 0,
-                  }}
-                />
-                <div
-                  style={{
+                  }} />
+                  <div style={{
                     position: 'absolute',
                     bottom: 0,
                     left: 0,
@@ -393,10 +373,8 @@ export default function Home() {
                     background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
                     zIndex: 1,
                     pointerEvents: 'none',
-                  }}
-                />
-                <div
-                  style={{
+                  }} />
+                  <div style={{
                     position: 'relative',
                     zIndex: 2,
                     display: 'flex',
@@ -404,56 +382,50 @@ export default function Home() {
                     justifyContent: 'space-between',
                     height: '100%',
                     padding: '1.5rem',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '2rem' }}>
-                    <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>
-                      {item.icon}
-                    </span>
-                  </div>
-                  <div>
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: '0.25rem',
-                    }}>
-                      <h3 style={{
-                        fontSize: 18,
-                        fontWeight: 600,
-                        color: 'white',
-                        fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                        letterSpacing: '-0.01em',
-                        margin: 0,
-                      }}>
-                        {item.name}
-                      </h3>
-                      <span style={{
-                        fontSize: 13,
-                        fontFamily: 'Geist Mono, monospace',
-                        letterSpacing: '0.02em',
-                        color: 'rgba(255,255,255,0.5)',
-                        whiteSpace: 'nowrap',
-                      }}>
-                        2025
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '2rem' }}>
+                      <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>
+                        {item.icon}
                       </span>
                     </div>
-                    <p style={{
-                      fontSize: 12,
-                      color: 'rgba(255,255,255,0.85)',
-                      lineHeight: 1.4,
-                      fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                      marginTop: '0.25rem',
-                    }}>
-                      {item.desc}
-                    </p>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
+                        <h3 style={{
+                          fontSize: 18,
+                          fontWeight: 600,
+                          color: 'white',
+                          fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                          letterSpacing: '-0.01em',
+                          margin: 0,
+                        }}>
+                          {item.name}
+                        </h3>
+                        <span style={{
+                          fontSize: 13,
+                          fontFamily: 'Geist Mono, monospace',
+                          letterSpacing: '0.02em',
+                          color: 'rgba(255,255,255,0.5)',
+                          whiteSpace: 'nowrap',
+                        }}>
+                          2025
+                        </span>
+                      </div>
+                      <p style={{
+                        fontSize: 12,
+                        color: 'rgba(255,255,255,0.85)',
+                        lineHeight: 1.4,
+                        fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                        marginTop: '0.25rem',
+                      }}>
+                        {item.desc}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
-          {/* Blog section */}
           <div id="blog" style={{ marginTop: '4rem' }}>
             <div style={{
               fontSize: '13px',
@@ -467,20 +439,23 @@ export default function Home() {
               02. BLOG
             </div>
 
-            <div
-              ref={blogContainerRef}
-              style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}
-            >
+            <div ref={blogContainerRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                borderTop: '1px dashed rgba(255,255,255,0.15)',
+                zIndex: 3,
+                pointerEvents: 'none',
+              }} />
+
               <AnimatePresence>
                 {hoveredBlogIndex !== null && (
                   <motion.div
                     layoutId="blog-highlight"
                     initial={{ opacity: 0 }}
-                    animate={{
-                      y: highlightStyle.y,
-                      height: highlightStyle.height,
-                      opacity: 1,
-                    }}
+                    animate={{ y: highlightStyle.y, height: highlightStyle.height, opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     style={{
@@ -505,37 +480,23 @@ export default function Home() {
                   onMouseLeave={() => setHoveredBlogIndex(null)}
                   style={{ position: 'relative', zIndex: 1 }}
                 >
-                  <Link
-                    href="/blog"
-                    className="blog-link-padding"
-                    style={{
-                      display: 'block',
-                      textDecoration: 'none',
-                    }}
-                  >
+                  <Link href="/blog" className="blog-link-padding" style={{ display: 'block', textDecoration: 'none' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span
-                          style={{
-                            fontSize: '15px',
-                            fontWeight: 500,
-                            color: hoveredBlogIndex === i ? 'white' : 'rgba(255,255,255,0.85)',
-                            letterSpacing: '-0.01em',
-                            fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                            transition: 'color 0.2s ease',
-                          }}
-                        >
+                        <span style={{
+                          fontSize: '15px',
+                          fontWeight: 500,
+                          color: hoveredBlogIndex === i ? 'white' : 'rgba(255,255,255,0.85)',
+                          letterSpacing: '-0.01em',
+                          fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                          transition: 'color 0.2s ease',
+                        }}>
                           {post.title}
                         </span>
                         <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+                          width="16" height="16" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" strokeWidth="2"
+                          strokeLinecap="round" strokeLinejoin="round"
                           style={{
                             transition: 'opacity 0.2s ease, transform 0.2s ease',
                             opacity: hoveredBlogIndex === i ? 1 : 0,
@@ -545,15 +506,13 @@ export default function Home() {
                           <path d="M7 7h10v10M7 17L17 7" />
                         </svg>
                       </div>
-                      <span
-                        style={{
-                          fontSize: '13px',
-                          fontFamily: 'Geist Mono, monospace',
-                          letterSpacing: '0.02em',
-                          color: 'rgba(255,255,255,0.4)',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
+                      <span style={{
+                        fontSize: '13px',
+                        fontFamily: 'Geist Mono, monospace',
+                        letterSpacing: '0.02em',
+                        color: 'rgba(255,255,255,0.4)',
+                        whiteSpace: 'nowrap',
+                      }}>
                         {post.date}
                       </span>
                     </div>
