@@ -12,7 +12,7 @@ import {
   UserRound,
   FolderOpen,
   PenLine,
-  BookMarked,
+  NotebookPen,
   MonitorDot,
 } from 'lucide-react';
 
@@ -25,14 +25,13 @@ const navItems = [
   { icon: <UserRound size={20} strokeWidth={1.5} />, label: 'About', href: '/about' },
   { icon: <FolderOpen size={20} strokeWidth={1.5} />, label: 'Projects', href: '/projects' },
   { icon: <PenLine size={20} strokeWidth={1.5} />, label: 'Blog', href: '/blog' },
-  { icon: <BookMarked size={20} strokeWidth={1.5} />, label: 'Guestbook', href: '/guestbook', separator: true },
+  { icon: <NotebookPen size={20} strokeWidth={1.5} />, label: 'Guestbook', href: '/guestbook', separator: true },
   { icon: <MonitorDot size={20} strokeWidth={1.5} />, label: 'Sys63', href: '/sys63' },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isSysPage = pathname === '/sys63';
-  const isGuestbook = pathname === '/guestbook';
 
   useClickSpark();
 
@@ -53,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         )}
         <main className="pt-0">{children}</main>
-        {!isSysPage && !isGuestbook && <Footer />}
+        {!isSysPage && <Footer />}
       </body>
     </html>
   );

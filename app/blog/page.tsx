@@ -69,7 +69,6 @@ export default function Blog() {
           pointer-events: none;
           z-index: 3;
         }
-
         .blog-filter-btn {
           background: none;
           border: none;
@@ -123,9 +122,7 @@ export default function Blog() {
                 key={cat}
                 onClick={() => setActive(cat)}
                 className="blog-filter-btn"
-                style={{
-                  color: active === cat ? 'white' : 'rgba(255,255,255,0.5)',
-                }}
+                style={{ color: active === cat ? 'white' : 'rgba(255,255,255,0.5)' }}
               >
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
               </button>
@@ -135,12 +132,9 @@ export default function Blog() {
           {/* Post list */}
           <div ref={listRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
 
-            {/* Top border at z-index 3 — always above the highlight layer */}
             <div style={{
               position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
+              top: 0, left: 0, right: 0,
               borderTop: '1px dashed rgba(255,255,255,0.15)',
               zIndex: 3,
               pointerEvents: 'none',
@@ -156,8 +150,7 @@ export default function Blog() {
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   style={{
                     position: 'absolute',
-                    left: 0,
-                    right: 0,
+                    left: 0, right: 0,
                     background: 'rgba(255,255,255,0.05)',
                     borderRadius: '14px',
                     zIndex: 0,

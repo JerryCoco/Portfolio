@@ -6,11 +6,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ScrollNav from '@/components/ScrollNav';
 
 const blogPosts = [
-  { title: "Recreating Antimetal's Hero Animation With a Canvas Dot Grid", date: "Apr 2026" },
-  { title: "A Procedural ASCII Art Engine with 27 Animations", date: "Apr 2026" },
-  { title: "Building a Real-Time Collaboration Layer in Next.js", date: "Mar 2026" },
-  { title: "Type Systems Are the Best UI Design Tool", date: "Mar 2026" },
-  { title: "The Architecture Behind My Sys63 OS Interface", date: "Feb 2026" },
+  { title: "Recreating Antimetal's Hero Animation With a Canvas Dot Grid", date: "Apr 2026", slug: "antimetal-hero" },
+  { title: "A Procedural ASCII Art Engine with 27 Animations", date: "Apr 2026", slug: "ascii-art-engine" },
+  { title: "Building a Real-Time Collaboration Layer in Next.js", date: "Mar 2026", slug: "collab-layer" },
+  { title: "Type Systems Are the Best UI Design Tool", date: "Mar 2026", slug: "type-systems" },
+  { title: "The Architecture Behind My Sys63 OS Interface", date: "Feb 2026", slug: "sys63-architecture" },
 ];
 
 const featuredWork = [
@@ -480,7 +480,7 @@ export default function Home() {
                   onMouseLeave={() => setHoveredBlogIndex(null)}
                   style={{ position: 'relative', zIndex: 1 }}
                 >
-                  <Link href="/blog" className="blog-link-padding" style={{ display: 'block', textDecoration: 'none' }}>
+                  <Link href={`/blog/${post.slug}`} className="blog-link-padding" style={{ display: 'block', textDecoration: 'none' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span style={{

@@ -137,7 +137,7 @@ export default function Guestbook() {
         .gb-input {
           background: transparent;
           border: none;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
+          border-bottom: 1px solid rgba(255,255,255,0.35);
           color: rgba(255,255,255,0.85);
           font-size: 13px;
           font-family: 'Courier Prime', monospace;
@@ -146,12 +146,12 @@ export default function Guestbook() {
           outline: none;
           transition: border-color 0.2s;
         }
-        .gb-input:focus { border-bottom-color: rgba(255,255,255,0.35); }
-        .gb-input::placeholder { color: rgba(255,255,255,0.18); }
+        .gb-input:focus { border-bottom-color: rgba(255,255,255,0.7); }
+        .gb-input::placeholder { color: rgba(255,255,255,0.25); }
 
         .gb-textarea {
           background: rgba(0,0,0,0.3);
-          border: 1px solid rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.25);
           border-radius: 4px;
           color: rgba(255,255,255,0.85);
           font-size: 13px;
@@ -164,13 +164,13 @@ export default function Guestbook() {
           line-height: 1.55;
           box-sizing: border-box;
         }
-        .gb-textarea:focus { border-color: rgba(255,255,255,0.2); }
-        .gb-textarea::placeholder { color: rgba(255,255,255,0.18); }
+        .gb-textarea:focus { border-color: rgba(255,255,255,0.5); }
+        .gb-textarea::placeholder { color: rgba(255,255,255,0.25); }
 
         .type-btn {
           background: transparent;
-          border: 1px solid rgba(255,255,255,0.07);
-          color: rgba(255,255,255,0.28);
+          border: 1px solid rgba(255,255,255,0.2);
+          color: rgba(255,255,255,0.4);
           font-size: 11px;
           font-family: 'Courier Prime', monospace;
           padding: 5px 12px;
@@ -179,7 +179,7 @@ export default function Guestbook() {
           transition: all 0.18s;
           letter-spacing: 0.04em;
         }
-        .type-btn:hover { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.55); }
+        .type-btn:hover { border-color: rgba(255,255,255,0.45); color: rgba(255,255,255,0.7); }
 
         .submit-btn {
           background: rgba(255,255,255,0.92);
@@ -235,7 +235,7 @@ export default function Guestbook() {
 
           {/* Entry form */}
           <div style={{
-            border: '1px solid rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.2)',
             borderRadius: 10,
             padding: '24px',
             background: '#0f0f0f',
@@ -290,8 +290,8 @@ export default function Guestbook() {
                   onClick={() => setType(t)}
                   animate={{
                     background: type === t ? 'rgba(255,255,255,0.08)' : 'transparent',
-                    borderColor: type === t ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.07)',
-                    color: type === t ? 'rgba(255,255,255,0.88)' : 'rgba(255,255,255,0.28)',
+                    borderColor: type === t ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)',
+                    color: type === t ? 'rgba(255,255,255,0.88)' : 'rgba(255,255,255,0.4)',
                   }}
                   transition={{ duration: 0.18 }}
                 >
