@@ -3,15 +3,7 @@
 import Link from 'next/link';
 import { useState, useRef, MouseEvent, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ScrollNav from '@/components/ScrollNav';
-
-const blogPosts = [
-  { title: "Recreating Antimetal's Hero Animation With a Canvas Dot Grid", date: "Apr 2026", slug: "antimetal-hero" },
-  { title: "A Procedural ASCII Art Engine with 27 Animations", date: "Apr 2026", slug: "ascii-art-engine" },
-  { title: "Building a Real-Time Collaboration Layer in Next.js", date: "Mar 2026", slug: "collab-layer" },
-  { title: "Type Systems Are the Best UI Design Tool", date: "Mar 2026", slug: "type-systems" },
-  { title: "The Architecture Behind My Sys63 OS Interface", date: "Feb 2026", slug: "sys63-architecture" },
-];
+import { posts } from '@/lib/blog';  
 
 const featuredWork = [
   {
@@ -55,43 +47,38 @@ export default function Home() {
   const [hoveredBlogIndex, setHoveredBlogIndex] = useState<number | null>(null);
   const [highlightStyle, setHighlightStyle] = useState({ y: 0, height: 0 });
 
-  const HIGHLIGHT_MARGIN_TOP = 6;
-  const HIGHLIGHT_MARGIN_BOTTOM = 6;
+  const MARGIN = 6;
+
+  // Recalculate blog hover highlight position
+  useEffect(() => {
+    if (hoveredBlogIndex === null || !blogRowRefs.current[hoveredBlogIndex] || !blogContainerRef.current) return;
+    const row = blogRowRefs.current[hoveredBlogIndex]!;
+    const container = blogContainerRef.current;
+    const rowRect = row.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    setHighlightStyle({
+      y: rowRect.top - containerRect.top + MARGIN,
+      height: rowRect.height - MARGIN * 2,
+    });
+  }, [hoveredBlogIndex]);
 
   useEffect(() => {
-    if (hoveredBlogIndex !== null && blogRowRefs.current[hoveredBlogIndex]) {
-      const row = blogRowRefs.current[hoveredBlogIndex];
+    const onResize = () => {
+      if (hoveredBlogIndex === null || !blogRowRefs.current[hoveredBlogIndex] || !blogContainerRef.current) return;
+      const row = blogRowRefs.current[hoveredBlogIndex]!;
       const container = blogContainerRef.current;
-      if (row && container) {
-        const rowRect = row.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        setHighlightStyle({
-          y: rowRect.top - containerRect.top + HIGHLIGHT_MARGIN_TOP,
-          height: rowRect.height - HIGHLIGHT_MARGIN_TOP - HIGHLIGHT_MARGIN_BOTTOM,
-        });
-      }
-    }
-  }, [hoveredBlogIndex]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (hoveredBlogIndex !== null && blogRowRefs.current[hoveredBlogIndex]) {
-        const row = blogRowRefs.current[hoveredBlogIndex];
-        const container = blogContainerRef.current;
-        if (row && container) {
-          const rowRect = row.getBoundingClientRect();
-          const containerRect = container.getBoundingClientRect();
-          setHighlightStyle({
-            y: rowRect.top - containerRect.top + HIGHLIGHT_MARGIN_TOP,
-            height: rowRect.height - HIGHLIGHT_MARGIN_TOP - HIGHLIGHT_MARGIN_BOTTOM,
-          });
-        }
-      }
+      const rowRect = row.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      setHighlightStyle({
+        y: rowRect.top - containerRect.top + MARGIN,
+        height: rowRect.height - MARGIN * 2,
+      });
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, [hoveredBlogIndex]);
 
+  // Copy email to clipboard on contact button click
   const handleCopy = async (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     await navigator.clipboard.writeText('abbanjerry001@gmail.com');
@@ -103,10 +90,7 @@ export default function Home() {
   const handleMouseMove = (e: MouseEvent<HTMLAnchorElement>) => {
     const rect = buttonRef.current?.getBoundingClientRect();
     if (rect) {
-      setTooltipPosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
+      setTooltipPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     }
   };
 
@@ -114,42 +98,35 @@ export default function Home() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
-        
+
         @keyframes iconFlipIn {
-          0% { transform: scale(0) rotate(90deg); opacity: 0; }
-          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+          0%   { transform: scale(0) rotate(90deg); opacity: 0; }
+          100% { transform: scale(1) rotate(0deg);  opacity: 1; }
         }
         @keyframes textChange {
-          0% { opacity: 0; transform: translateX(-5px); }
-          100% { opacity: 1; transform: translateX(0); }
+          0%   { opacity: 0; transform: translateX(-5px); }
+          100% { opacity: 1; transform: translateX(0);    }
         }
         .icon-enter { animation: iconFlipIn 0.25s ease-out forwards; }
-        .text-fade { animation: textChange 0.2s ease-out forwards; }
+        .text-fade  { animation: textChange 0.2s ease-out forwards; }
 
-        /* FIX: Dotted lines stay static on hover */
-        .blog-row {
-          position: relative;
-          z-index: 1;
-        }
+        /* Dashed row separator — stays static on hover */
         .blog-row::after {
           content: '';
           position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
+          bottom: 0; left: 0; right: 0;
           border-bottom: 1px dashed rgba(255,255,255,0.15);
           pointer-events: none;
           z-index: 3;
         }
-        
-        @media (min-width: 900px) { .blog-link-padding { padding: 18px 24px; } }
+
+        @media (min-width: 900px)                    { .blog-link-padding { padding: 18px 24px; } }
         @media (min-width: 600px) and (max-width: 899px) { .blog-link-padding { padding: 16px 20px; } }
-        @media (max-width: 599px) { .blog-link-padding { padding: 14px 16px; } }
+        @media (max-width: 599px)                    { .blog-link-padding { padding: 14px 16px; } }
       `}</style>
 
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', position: 'relative' }}>
-        <ScrollNav sections={['featured-work', 'blog']} ticksPerSection={8} />
-
+        {/* ── Hero ────────────────────────────────────────────────────── */}
         <div id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
           <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px 2.5rem 2rem' }}>
             <h1 style={{
@@ -171,42 +148,31 @@ export default function Home() {
               marginBottom: '2rem',
               maxWidth: 500,
               letterSpacing: '-0.01em',
-              fontFamily: 'Geist, Inter, system-ui, -apple-system, sans-serif',
+              fontFamily: 'Geist, Inter, system-ui, sans-serif',
             }}>
-              Driven by a love for design, I design and build 0 → 1 experiences 
-              that feel right, where storytelling sits at the core, 
+              Driven by a love for design, I design and build 0 → 1 experiences
+              that feel right, where storytelling sits at the core,
               shaped by a unique blend of design and data.
             </p>
-            
+
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* Contact / copy email button */}
               <div style={{ position: 'relative' }}>
                 <a
                   ref={buttonRef}
                   href="mailto:abbanjerry001@gmail.com"
                   onClick={handleCopy}
                   onMouseMove={handleMouseMove}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = '#1a1a1a';
-                    if (!copied) setShowTooltip(true);
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = '#000000';
-                    setShowTooltip(false);
-                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#1a1a1a'; if (!copied) setShowTooltip(true); }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#000'; setShowTooltip(false); }}
                   style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.45rem 1rem',
-                    borderRadius: 8,
+                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                    padding: '0.45rem 1rem', borderRadius: 8,
                     border: '1px solid rgba(255,255,255,0.15)',
-                    color: 'rgba(255,255,255,0.9)',
-                    fontSize: 13,
-                    textDecoration: 'none',
-                    background: '#000000',
+                    color: 'rgba(255,255,255,0.9)', fontSize: 13,
+                    textDecoration: 'none', background: '#000',
                     fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s ease',
+                    cursor: 'pointer', transition: 'background 0.2s ease',
                     boxShadow: `inset 0 -1px 3px 0 rgba(0,0,0,0.2),
                                 inset 1px 0 2px 0 rgba(0,0,0,0.4),
                                 inset -1px 0 2px 0 rgba(255,255,255,0.4),
@@ -215,102 +181,53 @@ export default function Home() {
                 >
                   <div style={{ position: 'relative', width: 14, height: 14, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                     {!copied ? (
-                      <svg key="email-icon" className="icon-enter" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute' }}>
-                        <rect x="2" y="4" width="20" height="16" rx="2" />
-                        <path d="m22 7-10 7L2 7" />
+                      <svg key="email" className="icon-enter" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute' }}>
+                        <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/>
                       </svg>
                     ) : (
-                      <svg key="check-icon" className="icon-enter" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute' }}>
-                        <polyline points="20 6 9 17 4 12" />
+                      <svg key="check" className="icon-enter" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute' }}>
+                        <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     )}
                   </div>
                   <span className={copied ? 'text-fade' : ''}>{copied ? 'Copied!' : 'Contact'}</span>
                 </a>
+
                 {showTooltip && !copied && (
                   <span style={{
                     position: 'absolute',
                     top: tooltipPosition.y - 40,
                     left: tooltipPosition.x,
                     transform: 'translateX(-50%)',
-                    background: '#ffffff',
-                    color: '#1a1a1a',
-                    fontSize: 11,
-                    fontWeight: 500,
-                    padding: '4px 10px',
-                    borderRadius: 20,
+                    background: '#fff', color: '#1a1a1a',
+                    fontSize: 11, fontWeight: 500,
+                    padding: '4px 10px', borderRadius: 20,
                     border: '1px solid rgba(0,0,0,0.1)',
-                    whiteSpace: 'nowrap',
-                    pointerEvents: 'none',
-                    zIndex: 1000,
-                    fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                    whiteSpace: 'nowrap', pointerEvents: 'none',
+                    zIndex: 1000, fontFamily: 'Geist, Inter, sans-serif',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                   }}>
-                    Copy email 
+                    Copy email
                   </span>
                 )}
               </div>
-              
-              <a
-                href="https://linkedin.com/in/YOUR_USERNAME"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  textDecoration: 'none',
-                  background: 'transparent',
-                  color: 'rgba(255,255,255,0.55)',
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                  e.currentTarget.style.borderRadius = '50%';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.borderRadius = '8px';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.55)';
-                }}
+
+              {/* LinkedIn */}
+              <a href="https://linkedin.com/in/YOUR_USERNAME" target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, textDecoration: 'none', background: 'transparent', color: 'rgba(255,255,255,0.55)', transition: 'all 0.2s ease', cursor: 'pointer' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderRadius = '50%'; e.currentTarget.style.color = 'rgba(255,255,255,0.9)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderRadius = '8px'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                 </svg>
               </a>
 
-              <a
-                href="https://twitter.com/YOUR_USERNAME"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  textDecoration: 'none',
-                  background: 'transparent',
-                  color: 'rgba(255,255,255,0.55)',
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                  e.currentTarget.style.borderRadius = '50%';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.borderRadius = '8px';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.55)';
-                }}
+              {/* Twitter / X */}
+              <a href="https://twitter.com/YOUR_USERNAME" target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, textDecoration: 'none', background: 'transparent', color: 'rgba(255,255,255,0.55)', transition: 'all 0.2s ease', cursor: 'pointer' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderRadius = '50%'; e.currentTarget.style.color = 'rgba(255,255,255,0.9)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderRadius = '8px'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
@@ -320,103 +237,46 @@ export default function Home() {
           </div>
         </div>
 
+        {/* ── Featured Work + Blog ─────────────────────────────────────── */}
         <div id="featured-work" style={{ padding: '4rem 2.5rem 20px', maxWidth: 1000, margin: '0 auto' }}>
+
+          {/* Section label — matches about page format */}
           <div style={{
-            fontSize: '13px',
-            fontWeight: 600,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.6)',
-            marginBottom: '1rem',
-            fontFamily: 'Instrument Serif, serif',
+            fontSize: '13px', fontWeight: 600, letterSpacing: '0.1em',
+            textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
+            marginBottom: '1rem', fontFamily: 'Geist, Inter, sans-serif',
           }}>
-            01. FEATURED WORK
+            01. Featured Work
           </div>
 
+          {/* 2-column project cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
             {featuredWork.map((item, idx) => (
               <Link key={idx} href={`/projects/${item.slug}`} style={{ textDecoration: 'none' }}>
                 <div
                   style={{
-                    position: 'relative',
-                    borderRadius: '1rem',
-                    overflow: 'hidden',
+                    position: 'relative', borderRadius: '1rem', overflow: 'hidden',
                     border: '1px solid rgba(255,255,255,0.08)',
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                    cursor: 'pointer',
-                    backgroundColor: '#0d0d0d',
-                    aspectRatio: '4 / 5',
+                    cursor: 'pointer', backgroundColor: '#0d0d0d', aspectRatio: '4 / 5',
                   }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'scale(1.02)';
-                    e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
                 >
-                  <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    backgroundImage: item.gradient,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    zIndex: 0,
-                  }} />
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: '60%',
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)',
-                    zIndex: 1,
-                    pointerEvents: 'none',
-                  }} />
-                  <div style={{
-                    position: 'relative',
-                    zIndex: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    height: '100%',
-                    padding: '1.5rem',
-                  }}>
+                  <div style={{ position: 'absolute', inset: 0, backgroundImage: item.gradient, zIndex: 0 }} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%)', zIndex: 1, pointerEvents: 'none' }} />
+                  <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', padding: '1.5rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '2rem' }}>
-                      <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>
-                        {item.icon}
-                      </span>
+                      <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>{item.icon}</span>
                     </div>
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
-                        <h3 style={{
-                          fontSize: 18,
-                          fontWeight: 600,
-                          color: 'white',
-                          fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                          letterSpacing: '-0.01em',
-                          margin: 0,
-                        }}>
+                        <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', fontFamily: 'Geist, Inter, system-ui, sans-serif', letterSpacing: '-0.01em', margin: 0 }}>
                           {item.name}
                         </h3>
-                        <span style={{
-                          fontSize: 13,
-                          fontFamily: 'Geist Mono, monospace',
-                          letterSpacing: '0.02em',
-                          color: 'rgba(255,255,255,0.5)',
-                          whiteSpace: 'nowrap',
-                        }}>
-                          2025
-                        </span>
+                        <span style={{ fontSize: 13, fontFamily: 'Geist Mono, monospace', color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap' }}>2025</span>
                       </div>
-                      <p style={{
-                        fontSize: 12,
-                        color: 'rgba(255,255,255,0.85)',
-                        lineHeight: 1.4,
-                        fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                        marginTop: '0.25rem',
-                      }}>
+                      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.4, fontFamily: 'Geist, Inter, system-ui, sans-serif', marginTop: '0.25rem' }}>
                         {item.desc}
                       </p>
                     </div>
@@ -426,30 +286,25 @@ export default function Home() {
             ))}
           </div>
 
+          {/* ── Blog section ──────────────────────────────────────────── */}
           <div id="blog" style={{ marginTop: '4rem' }}>
             <div style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.6)',
-              marginBottom: '20px',
-              fontFamily: 'Instrument Serif, serif',
+              fontSize: '13px', fontWeight: 600, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
+              marginBottom: '20px', fontFamily: 'Geist, Inter, sans-serif',
             }}>
-              02. BLOG
+              02. Blog
             </div>
 
             <div ref={blogContainerRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
+              {/* Top dashed border */}
               <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
+                position: 'absolute', top: 0, left: 0, right: 0,
                 borderTop: '1px dashed rgba(255,255,255,0.15)',
-                zIndex: 3,
-                pointerEvents: 'none',
+                zIndex: 3, pointerEvents: 'none',
               }} />
 
+              {/* Animated hover highlight */}
               <AnimatePresence>
                 {hoveredBlogIndex !== null && (
                   <motion.div
@@ -459,21 +314,18 @@ export default function Home() {
                     exit={{ opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     style={{
-                      position: 'absolute',
-                      left: 0,
-                      right: 0,
+                      position: 'absolute', left: 0, right: 0,
                       background: 'rgba(255,255,255,0.05)',
-                      borderRadius: '14px',
-                      zIndex: 0,
-                      pointerEvents: 'none',
+                      borderRadius: '14px', zIndex: 0, pointerEvents: 'none',
                     }}
                   />
                 )}
               </AnimatePresence>
 
-              {blogPosts.map((post, i) => (
+              {/* Show latest 5 posts — links go directly to the post */}
+              {posts.slice(0, 5).map((post, i) => (
                 <div
-                  key={i}
+                  key={post.slug}
                   ref={(el) => (blogRowRefs.current[i] = el)}
                   className="blog-row"
                   onMouseEnter={() => setHoveredBlogIndex(i)}
@@ -484,8 +336,7 @@ export default function Home() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span style={{
-                          fontSize: '15px',
-                          fontWeight: 500,
+                          fontSize: '15px', fontWeight: 500,
                           color: hoveredBlogIndex === i ? 'white' : 'rgba(255,255,255,0.85)',
                           letterSpacing: '-0.01em',
                           fontFamily: 'Geist, Inter, system-ui, sans-serif',
@@ -493,24 +344,20 @@ export default function Home() {
                         }}>
                           {post.title}
                         </span>
-                        <svg
-                          width="16" height="16" viewBox="0 0 24 24"
-                          fill="none" stroke="currentColor" strokeWidth="2"
-                          strokeLinecap="round" strokeLinejoin="round"
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                           style={{
                             transition: 'opacity 0.2s ease, transform 0.2s ease',
                             opacity: hoveredBlogIndex === i ? 1 : 0,
                             transform: hoveredBlogIndex === i ? 'translateX(2px)' : 'none',
+                            color: 'rgba(255,255,255,0.6)',
                           }}
                         >
-                          <path d="M7 7h10v10M7 17L17 7" />
+                          <path d="M7 7h10v10M7 17L17 7"/>
                         </svg>
                       </div>
                       <span style={{
-                        fontSize: '13px',
-                        fontFamily: 'Geist Mono, monospace',
-                        letterSpacing: '0.02em',
-                        color: 'rgba(255,255,255,0.4)',
+                        fontSize: '13px', fontFamily: 'Geist Mono, monospace',
+                        letterSpacing: '0.02em', color: 'rgba(255,255,255,0.4)',
                         whiteSpace: 'nowrap',
                       }}>
                         {post.date}

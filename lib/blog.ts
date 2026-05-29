@@ -1,8 +1,14 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// lib/blog.ts
+// Single source of truth for all blog posts.
+// Both homepage and /blog page import from here — dates and slugs stay in sync.
+// ─────────────────────────────────────────────────────────────────────────────
+
 export type Post = {
   slug: string;
   title: string;
-  date: string;
-  category: string;
+  date: string;      // display format: "Apr 2026"
+  category: string;  // "design" | "writings" | "sports" | "life"
   tags?: string[];
   excerpt?: string;
   content: string;
@@ -12,7 +18,7 @@ export const posts: Post[] = [
   {
     slug: 'antimetal-hero',
     title: "Recreating Antimetal's Hero Animation With a Canvas Dot Grid",
-    date: '2026-04-16',
+    date: 'Apr 2026',
     category: 'design',
     tags: ['Creative-Coding', 'Canvas', 'Halftone', 'Animation'],
     excerpt:
@@ -50,7 +56,7 @@ The design lesson here: **aggregate before you draw.** The naive version compute
 
 Three concentric structures anchor the composition:
 
-- **Core disc** — a warped sum-of-sines noise field inside \`rInner\`, passed through a double smoothstep for an S-curve contrast. The radius breathes with two out-of-phase sinusoids (\`sin(t · 1.1) · cos(t · 0.7)\`) so the loop never repeats perfectly. This is the trick to making procedural motion feel "alive" vs "computer-generated" — use two frequencies that don't share a common period.
+- **Core disc** — a warped sum-of-sines noise field inside \`rInner\`, passed through a double smoothstep for an S-curve contrast. The radius breathes with two out-of-phase sinusoids (\`sin(t · 1.1) · cos(t · 0.7)\`) so the loop never repeats perfectly.
 
 - **Ring 1 and Ring 2** — thin annuli with angular waves plus bright "runners" that sweep around, implemented as angular gaussians whose centers rotate with time. Each ring layers a slow sine, a faster sine, and a dominant runner, all multiplied by a fade profile so the ring is thinnest at its inner and outer edges.
 
@@ -63,11 +69,9 @@ The big drifting blobs in the Antimetal hero are the most distinctive part, and 
 
 Each cell contributes an \`exp(-d² / 2σ²)\` kernel — same math as a 2D gaussian blob — with a bell-shaped scale envelope over its lifetime so it fades in, peaks mid-travel, and fades out.
 
-Floating outline shapes (square, circle, triangle) cycle through a five-phase timeline: bounce-grow, hold A, snap-morph A→B, pause B, and shrink. The morph interpolates between two shape SDFs — the equilateral triangle formula is particularly clever, folding the input space before computing distance so edges stay razor-sharp through the morph instead of smudging.
-
 ## Cursor Trail
 
-Pointer moves push timestamped samples into a ring buffer. Each sample fades with a squared age curve and an index weight — the newest point is full brightness, the oldest nearly invisible. Read the buffer every frame and sum gaussian kernels at each trail point, weighted by that combined fade factor.
+Pointer moves push timestamped samples into a ring buffer. Each sample fades with a squared age curve and an index weight — the newest point is full brightness, the oldest nearly invisible.
 
 ## What I'd Do Differently
 
@@ -75,7 +79,7 @@ If I were shipping this as a real hero for a real site, I'd probably:
 
 - **Move the hot inner loop to a worker** or offscreen canvas, so scrolling past it doesn't jitter.
 - **Add an \`IntersectionObserver\`** to pause the rAF when the component is out of view.
-- **Steal Antimetal's actual approach** for the big blobs — authoring their motion in After Effects and sampling a video texture — because procedural cells will never have the same edited rhythm as something a motion designer keyframed. The video-driven approach is honestly the right answer for a polished production hero; the procedural version is the right answer for a self-contained study.
+- **Steal Antimetal's actual approach** for the big blobs — authoring their motion in After Effects and sampling a video texture — because procedural cells will never have the same edited rhythm as something a motion designer keyframed.
 
 Either way: it's been a while since a marketing site's hero made me want to spend a weekend rebuilding it. Credit to whoever designed the original.
     `.trim(),
@@ -83,7 +87,7 @@ Either way: it's been a while since a marketing site's hero made me want to spen
   {
     slug: 'ascii-art-engine',
     title: 'A Procedural ASCII Art Engine with 27 Animations',
-    date: '2026-04-10',
+    date: 'Apr 2026',
     category: 'writings',
     tags: ['ASCII', 'Canvas', 'Animation', 'Generative'],
     excerpt: 'Building a self-contained ASCII renderer with 27 distinct animation modes, all driven by a single loop.',
@@ -108,7 +112,7 @@ The hardest part wasn't the math. It was the font. Monospace fonts aren't actual
   {
     slug: 'collab-layer',
     title: 'Building a Real-Time Collaboration Layer in Next.js',
-    date: '2026-03-22',
+    date: 'Mar 2026',
     category: 'design',
     tags: ['Next.js', 'WebSockets', 'Collaboration', 'Architecture'],
     excerpt: 'How I wired live cursors, presence, and conflict-free edits into a Next.js app without a backend rewrite.',
@@ -133,7 +137,7 @@ The hardest bug was the "thundering herd" problem on reconnect. When 50 users re
   {
     slug: 'type-systems',
     title: 'Type Systems Are the Best UI Design Tool',
-    date: '2026-03-15',
+    date: 'Mar 2026',
     category: 'writings',
     tags: ['TypeScript', 'Design', 'DX', 'Opinion'],
     excerpt: 'A type is a constraint. A constraint is a design decision. So types are design decisions — and that means your type system is a design tool.',
@@ -160,7 +164,7 @@ Write your types before you write your components. The process of defining what 
   {
     slug: 'sys63-architecture',
     title: 'The Architecture Behind My Sys63 OS Interface',
-    date: '2026-02-28',
+    date: 'Feb 2026',
     category: 'design',
     tags: ['Architecture', 'OS', 'UI', 'Experiment'],
     excerpt: 'What happens when you build a window manager in the browser, from scratch, without a framework.',
@@ -173,13 +177,13 @@ Sys63 is a fake operating system interface that runs in the browser. It has wind
 
 Each window is an absolutely-positioned div. Dragging is handled with pointer events and a global drag state. Z-index is managed with a stack — focusing a window moves it to the top of the stack, and the stack maps to z-index values.
 
-The hard part: resize handles. Each window has eight resize handles (corners + edges), each with its own drag behavior. The corner handles change both width/height, the edge handles change one dimension. Getting the math right for top-left and top-edge resizing (where you're moving the origin, not just changing the size) took embarrassingly long.
+The hard part: resize handles. Each window has eight resize handles (corners + edges), each with its own drag behavior. The corner handles change both width/height, the edge handles change one dimension.
 
 ## State Without a Framework
 
 No Redux, no Zustand, no React context. Just a global state object and a custom event bus. Windows subscribe to the events they care about. The file system publishes change events when files are created or deleted.
 
-This worked fine until it didn't — the terminal needed to subscribe to file system events, the file manager needed to subscribe to window events, and suddenly I had a spaghetti event graph. The fix: a proper command pattern where every state change goes through a central dispatcher that logs, validates, and applies the change.
+This worked fine until it didn't — the terminal needed to subscribe to file system events, the file manager needed to subscribe to window events, and suddenly I had a spaghetti event graph. The fix: a proper command pattern where every state change goes through a central dispatcher.
 
 ## What's Next
 
@@ -188,6 +192,7 @@ A proper process model. Right now every "app" is just a component. I want each a
   },
 ];
 
+// Get a single post by its slug — used in /blog/[blog]/page.tsx
 export function getPost(slug: string): Post | undefined {
   return posts.find((p) => p.slug === slug);
 }

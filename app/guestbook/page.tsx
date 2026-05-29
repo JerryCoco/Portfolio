@@ -206,7 +206,7 @@ export default function Guestbook() {
         }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', paddingBottom: '8rem' }}>
+      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', paddingBottom: '20px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 2.5rem 0' }}>
 
           <div style={{ marginBottom: '2.5rem' }}>
@@ -413,7 +413,7 @@ export default function Guestbook() {
           )}
 
           {entries.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '4rem 0', color: 'rgba(255,255,255,0.18)', fontFamily: 'Courier Prime, monospace', fontSize: 13 }}>
+            <div style={{ textAlign: 'center', padding: '2rem 0', color: 'rgba(255,255,255,0.18)', fontFamily: 'Courier Prime, monospace', fontSize: 13 }}>
               No stamps yet. Be the first.
             </div>
           )}
