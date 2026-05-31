@@ -178,7 +178,8 @@ export default function Blog() {
               {categories.map((cat, idx) => (
                 <button
                   key={cat}
-ref={(el) => { tabRefs.current[idx] = el; }}                  onClick={() => setActive(cat)}
+                  ref={(el) => { tabRefs.current[idx] = el; }}
+                  onClick={() => setActive(cat)}
                   style={{
                     position: 'relative',
                     zIndex: 1,
@@ -233,7 +234,7 @@ ref={(el) => { tabRefs.current[idx] = el; }}                  onClick={() => set
             {filtered.map((post, i) => (
               <div
                 key={post.slug}
-                ref={(el) => (rowRefs.current[i] = el)}
+                ref={(el) => { rowRefs.current[i] = el; }}
                 className="blog-row"
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
