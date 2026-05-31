@@ -178,8 +178,7 @@ export default function Blog() {
               {categories.map((cat, idx) => (
                 <button
                   key={cat}
-                  ref={(el) => (tabRefs.current[idx] = el)}
-                  onClick={() => setActive(cat)}
+ref={(el) => { tabRefs.current[idx] = el; }}                  onClick={() => setActive(cat)}
                   style={{
                     position: 'relative',
                     zIndex: 1,
