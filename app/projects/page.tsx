@@ -6,52 +6,25 @@ import { motion } from 'framer-motion';
 
 const allProjects = [
   {
-    name: 'Holovita AI',
-    desc: '0→1 health companion product',
+    name: 'RemedyCare HARS UI',
+    desc: 'Health Administration & Records System for RemedyCare Technologies Ltd',
     category: 'ui-ux',
     year: '2025',
-    icon: '💊',
-    slug: 'holovita-ai',
+    slug: 'remedycare-hars',
   },
   {
-    name: 'Hyperlink (Nexa AI)',
-    desc: 'Brand and coded UI for on‑device AI',
-    category: 'brand',
-    year: '2025',
-    icon: '🔗',
-    slug: 'hyperlink-nexa',
-  },
-  {
-    name: 'Sys63',
-    desc: 'WebOS designed in code',
-    category: 'development',
-    year: '2025',
-    icon: '🖥️',
-    slug: 'sys63',
-  },
-  {
-    name: 'Windows 11',
-    desc: 'Design at Windows Design Team',
+    name: 'Attendance App UI',
+    desc: 'Smart attendance tracking system design',
     category: 'ui-ux',
     year: '2025',
-    icon: '🪟',
-    slug: 'windows-11',
+    slug: 'attendance-app',
   },
   {
-    name: 'Creative Agency Platform',
-    desc: 'Full‑service agency website with CMS',
-    category: 'development',
-    year: '2024',
-    icon: '🎨',
-    slug: 'creative-agency',
-  },
-  {
-    name: 'Fintech Dashboard',
-    desc: 'Data‑rich financial interface',
+    name: 'Hostel App UI',
+    desc: 'Hostel management & booking experience',
     category: 'ui-ux',
-    year: '2024',
-    icon: '📊',
-    slug: 'fintech-dashboard',
+    year: '2025',
+    slug: 'hostel-app',
   },
 ];
 
@@ -85,10 +58,8 @@ export default function Projects() {
 
   // Set initial indicator on mount
   useEffect(() => { updateIndicator(activeCategory); }, []);
-
   // Update on active change
   useEffect(() => { updateIndicator(activeCategory); }, [activeCategory]);
-
   // Update on resize
   useEffect(() => {
     const onResize = () => updateIndicator(activeCategory);
@@ -100,15 +71,34 @@ export default function Projects() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+
+        @media (max-width: 640px) {
+          .projects-grid {
+            display: flex !important;
+            flex-direction: row !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            -webkit-overflow-scrolling: touch !important;
+            gap: 1rem !important;
+            padding-bottom: 1rem !important;
+          }
+          .projects-grid > a {
+            flex: 0 0 80vw !important;
+            scroll-snap-align: start !important;
+          }
+          .projects-grid::-webkit-scrollbar { display: none !important; }
+          .projects-grid { background: transparent !important; }
+          .projects-wrapper { padding-bottom: 4rem !important; }
+        }
       `}</style>
 
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
-        <div style={{ padding: '20px 2.5rem 20px', maxWidth: 1000, margin: '0 auto' }}>
+        <div className="projects-wrapper" style={{ padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 4rem', maxWidth: 1000, margin: '0 auto' }}>
 
           {/* Header */}
           <div style={{ marginBottom: '2rem' }}>
             <h1 style={{
-              fontSize: '52px',
+              fontSize: 'clamp(32px, 6vw, 52px)',
               fontWeight: 500,
               lineHeight: 1.15,
               letterSpacing: '-0.02em',
@@ -128,9 +118,10 @@ export default function Projects() {
             </p>
           </div>
 
-          {/* Filter tabs — grouped container with smooth sliding indicator */}
+          {/* Filter tabs row */}
           <div style={{
             display: 'flex',
+            flexWrap: 'wrap' as const,
             marginBottom: '2rem',
             borderBottom: '0.5px solid rgba(255,255,255,0.08)',
             paddingBottom: '0.75rem',
@@ -192,8 +183,8 @@ export default function Projects() {
             </div>
           </div>
 
-          {/* Projects grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+          {/* Projects grid - with className for mobile horizontal scroll */}
+          <div className="projects-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem', background: 'transparent' }}>
             {filteredProjects.map((project, idx) => (
               <Link key={idx} href={`/projects/${project.slug}`} style={{ textDecoration: 'none' }}>
                 <div
@@ -204,8 +195,8 @@ export default function Projects() {
                     border: '1px solid rgba(255,255,255,0.08)',
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                     cursor: 'pointer',
-                    backgroundColor: '#0d0d0d',
-                    aspectRatio: '4 / 5',
+                    backgroundColor: '#141414',
+                    aspectRatio: '3 / 4',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'scale(1.02)';
@@ -217,25 +208,11 @@ export default function Projects() {
                   }}
                 >
                   <div style={{
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'radial-gradient(circle at 30% 40%, #1a1a2e, #0d0d1a, #2a2a4a)',
-                    zIndex: 0,
-                  }} />
-                  <div style={{
-                    position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%)',
-                    zIndex: 1, pointerEvents: 'none',
-                  }} />
-                  <div style={{
                     position: 'relative', zIndex: 2,
                     display: 'flex', flexDirection: 'column',
                     justifyContent: 'space-between', height: '100%', padding: '1.5rem',
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '2rem' }}>
-                      <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>
-                        {project.icon}
-                      </span>
-                    </div>
+                    <div style={{ flex: 1 }} />
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
                         <h3 style={{

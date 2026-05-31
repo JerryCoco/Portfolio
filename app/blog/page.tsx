@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { posts } from '@/lib/blog';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const categories = ['all', 'design', 'writings', 'sports'];
+const categories = ['all', 'sports', 'writings', 'design'];
 
 export default function Blog() {
   const [active, setActive] = useState('all');
@@ -106,16 +106,22 @@ export default function Blog() {
 
         @media (min-width: 900px)                        { .blog-link-padding { padding: 18px 24px; } }
         @media (min-width: 600px) and (max-width: 899px) { .blog-link-padding { padding: 16px 20px; } }
-        @media (max-width: 599px)                        { .blog-link-padding { padding: 14px 16px; } }
+       @media (max-width: 599px)                        { .blog-link-padding { padding: 14px 16px; } }
+
+        @media (max-width: 480px) {
+          .blog-link-padding span[style] {
+            white-space: normal !important;
+          }
+        }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
-        <div style={{ padding: '28px 2.5rem 20px', maxWidth: 1000, margin: '0 auto' }}>
+      <div style={{ background: '#0d0d0d', color: 'white', minHeight: '60vh' }}>
+        <div style={{ padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 4rem', maxWidth: 1000, margin: '0 auto' }}>
 
           {/* Header */}
           <h1 style={{
             fontFamily: 'Instrument Serif, serif',
-            fontSize: 52,
+            fontSize: 'clamp(32px, 6vw, 52px)',
             fontWeight: 500,
             lineHeight: 1.15,
             letterSpacing: '-0.02em',
@@ -199,8 +205,7 @@ export default function Blog() {
 
           {/* Post list */}
           <div ref={listRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
-
-            {/* Top dashed border */}
+          {/* Top dashed border */}
             <div style={{
               position: 'absolute', top: 0, left: 0, right: 0,
               borderTop: '1px dashed rgba(255,255,255,0.15)',
@@ -243,7 +248,7 @@ export default function Blog() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span style={{
-                        fontSize: '15px',
+                        fontSize: 'clamp(13px, 2.5vw, 15px)',
                         fontWeight: 500,
                         color: hoveredIndex === i ? 'white' : 'rgba(255,255,255,0.85)',
                         letterSpacing: '-0.01em',

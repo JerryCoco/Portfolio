@@ -206,8 +206,8 @@ export default function Guestbook() {
         }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', paddingBottom: '20px' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto', padding: '32px 2.5rem 0' }}>
+      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', paddingBottom: '4rem' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', padding: '4rem 2.5rem 0' }}>
 
           <div style={{ marginBottom: '2.5rem' }}>
             <div style={{

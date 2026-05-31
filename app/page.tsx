@@ -7,32 +7,19 @@ import { posts } from '@/lib/blog';
 
 const featuredWork = [
   {
-    name: 'Holovita AI',
-    desc: '0-1 health companion product',
-    gradient: 'radial-gradient(circle at 30% 40%, #0f1f0f, #0a150a, #1a3a1a)',
-    icon: '💊',
-    slug: 'holovita-ai',
+    name: 'RemedyCare HARS UI',
+    desc: 'Health Administration & Records System for RemedyCare Technologies Ltd',
+    slug: 'remedycare-hars',
   },
   {
-    name: 'Hyperlink (Nexa AI)',
-    desc: 'Brand and coded UI for on-device AI',
-    gradient: 'radial-gradient(circle at 70% 20%, #1a2a4a, #0d1830, #2a4a6a)',
-    icon: '🔗',
-    slug: 'hyperlink-nexa',
+    name: 'Attendance App UI',
+    desc: 'Smart attendance tracking system design',
+    slug: 'attendance-app',
   },
   {
-    name: 'Sys63',
-    desc: 'WebOS designed in code.',
-    gradient: 'radial-gradient(circle at 20% 80%, #1a1a2e, #0d0d1a, #2a2a4a)',
-    icon: '🖥️',
-    slug: 'sys63',
-  },
-  {
-    name: 'Windows 11',
-    desc: 'Design at Windows Design Team',
-    gradient: 'radial-gradient(circle at 50% 50%, #0a1628, #1a3a5c, #2a5a8a)',
-    icon: '🪟',
-    slug: 'windows-11',
+    name: 'Hostel App UI',
+    desc: 'Hostel management & booking experience',
+    slug: 'hostel-app',
   },
 ];
 
@@ -123,14 +110,32 @@ export default function Home() {
         @media (min-width: 900px)                    { .blog-link-padding { padding: 18px 24px; } }
         @media (min-width: 600px) and (max-width: 899px) { .blog-link-padding { padding: 16px 20px; } }
         @media (max-width: 599px)                    { .blog-link-padding { padding: 14px 16px; } }
+
+        @media (max-width: 640px) {
+          .home-cards-grid {
+            display: flex !important;
+            flex-direction: row !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            -webkit-overflow-scrolling: touch !important;
+            gap: 1rem !important;
+            padding-bottom: 1rem !important;
+            background: transparent !important;
+          }
+          .home-cards-grid > a {
+            flex: 0 0 80vw !important;
+            scroll-snap-align: start !important;
+          }
+          .home-cards-grid::-webkit-scrollbar { display: none !important; }
+        }
       `}</style>
 
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', position: 'relative' }}>
         {/* ── Hero ────────────────────────────────────────────────────── */}
         <div id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
-          <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px 2.5rem 2rem' }}>
+          <div style={{ maxWidth: 1000, margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 0' }}>
             <h1 style={{
-              fontSize: '52px',
+              fontSize: 'clamp(32px, 6vw, 52px)',
               fontWeight: 500,
               lineHeight: 1.15,
               letterSpacing: '-0.02em',
@@ -213,7 +218,7 @@ export default function Home() {
               </div>
 
               {/* LinkedIn */}
-              <a href="https://linkedin.com/in/YOUR_USERNAME" target="_blank" rel="noopener noreferrer"
+              <a href="https://www.linkedin.com/in/jeremiah-abban-64335a282" target="_blank" rel="noopener noreferrer"
                 style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, textDecoration: 'none', background: 'transparent', color: 'rgba(255,255,255,0.55)', transition: 'all 0.2s ease', cursor: 'pointer' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderRadius = '50%'; e.currentTarget.style.color = 'rgba(255,255,255,0.9)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderRadius = '8px'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}
@@ -224,7 +229,7 @@ export default function Home() {
               </a>
 
               {/* Twitter / X */}
-              <a href="https://twitter.com/YOUR_USERNAME" target="_blank" rel="noopener noreferrer"
+              <a href="https://x.com/jeremiahabban" target="_blank" rel="noopener noreferrer"
                 style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, textDecoration: 'none', background: 'transparent', color: 'rgba(255,255,255,0.55)', transition: 'all 0.2s ease', cursor: 'pointer' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderRadius = '50%'; e.currentTarget.style.color = 'rgba(255,255,255,0.9)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderRadius = '8px'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; }}
@@ -238,7 +243,7 @@ export default function Home() {
         </div>
 
         {/* ── Featured Work + Blog ─────────────────────────────────────── */}
-        <div id="featured-work" style={{ padding: '4rem 2.5rem 20px', maxWidth: 1000, margin: '0 auto' }}>
+        <div id="featured-work" style={{ padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 4rem', maxWidth: 1000, margin: '0 auto' }}>
 
           {/* Section label — matches about page format */}
           <div style={{
@@ -250,7 +255,7 @@ export default function Home() {
           </div>
 
           {/* 2-column project cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+          <div className="home-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
             {featuredWork.map((item, idx) => (
               <Link key={idx} href={`/projects/${item.slug}`} style={{ textDecoration: 'none' }}>
                 <div
@@ -258,17 +263,13 @@ export default function Home() {
                     position: 'relative', borderRadius: '1rem', overflow: 'hidden',
                     border: '1px solid rgba(255,255,255,0.08)',
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                    cursor: 'pointer', backgroundColor: '#0d0d0d', aspectRatio: '4 / 5',
+                    cursor: 'pointer', backgroundColor: '#141414', aspectRatio: '3 / 4',
                   }}
                   onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)'; }}
                   onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
                 >
-                  <div style={{ position: 'absolute', inset: 0, backgroundImage: item.gradient, zIndex: 0 }} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%)', zIndex: 1, pointerEvents: 'none' }} />
                   <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '2rem' }}>
-                      <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }}>{item.icon}</span>
-                    </div>
+                    <div style={{ flex: 1 }} />
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
                         <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', fontFamily: 'Geist, Inter, system-ui, sans-serif', letterSpacing: '-0.01em', margin: 0 }}>

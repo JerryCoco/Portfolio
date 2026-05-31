@@ -185,6 +185,9 @@ export default function About() {
         .skill-group {
           margin-bottom: 1.75rem;
         }
+        .skill-group:last-child {
+          margin-bottom: 0;
+        }
 
         .skill-group-label {
           font-size: 12px;
@@ -199,14 +202,24 @@ export default function About() {
           flex-wrap: wrap;
           gap: 0.4rem;
         }
+
+        @media (max-width: 640px) {
+          .exp-row {
+            flex-direction: column;
+            gap: 4px;
+          }
+          .exp-row > div:last-child {
+            margin-left: 0 !important;
+          }
+        }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
+      <div style={{ background: '#0d0d0d', color: 'white' }}>
 
         {/* ── Hero ─────────────────────────────────────────────────────── */}
-        <div style={{ maxWidth: 1000, margin: '0 auto', padding: '20px 2.5rem 2rem' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 0' }}>
           <h1 style={{
-            fontSize: '52px',
+            fontSize: 'clamp(32px, 6vw, 52px)',
             fontWeight: 500,
             lineHeight: 1.15,
             letterSpacing: '-0.02em',
@@ -267,7 +280,7 @@ export default function About() {
         </div>
 
         {/* ── Sections ─────────────────────────────────────────────────── */}
-        <div style={{ padding: '0 2.5rem 20px', maxWidth: 1000, margin: '0 auto' }}>
+        <div style={{ padding: '0 clamp(1rem, 4vw, 2.5rem) 4rem', maxWidth: 1000, margin: '0 auto' }}>
 
           {/* 01. Experience */}
           <div style={{ marginBottom: '3.5rem' }}>
@@ -324,7 +337,7 @@ export default function About() {
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
+              gridTemplateColumns: 'repeat(2, 1fr)',
               gap: '12px',
             }}>
               {[
@@ -354,10 +367,10 @@ export default function About() {
           </div>
 
           {/* 03. The Stack & Skills — now 2×2 balanced grid */}
-          <div style={{ marginBottom: '3.5rem' }}>
+           <div style={{ marginBottom: '0' }}>
             <SectionLabel number="03" title="The Stack & Skills" />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem 4rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
 
               {/* Column 1 — Front-End & Systems */}
               <div>
