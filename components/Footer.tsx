@@ -110,9 +110,6 @@ export default function Footer() {
           .footer-grid-item:last-child {
             border-bottom: none;
           }
-          .footer-empty-cell {
-            display: none !important;
-          }
           .footer-nav-row { 
             flex-direction: column !important; 
             gap: 2rem !important; 
@@ -128,20 +125,23 @@ export default function Footer() {
           .footer-copyright { 
             flex-direction: column !important; 
             gap: 0.5rem !important; 
-            text-align: center !important;
-            align-items: center !important;
+            text-align: center !important; 
           }
           .footer-divider { 
             display: none !important; 
           }
-          .tap-effect {
+          /* Make tap targets larger on mobile */
+          a, button, [onClick] {
             min-height: 44px;
-            display: inline-flex !important;
+            display: inline-flex;
             align-items: center;
-            transition: opacity 0.15s ease;
+          }
+          .tap-effect {
+            transition: opacity 0.1s ease;
+            cursor: pointer;
           }
           .tap-effect:active {
-            opacity: 0.55;
+            opacity: 0.6;
           }
           * {
             -webkit-tap-highlight-color: rgba(255,255,255,0.1);
@@ -171,7 +171,7 @@ export default function Footer() {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>— {quote.author}</div>
             </div>
 
-            <div className="footer-grid-item footer-empty-cell" style={{ padding: '1.75rem 2rem' }} />
+            <div className="footer-grid-item" style={{ padding: '1.75rem 2rem' }} />
 
             <div className="footer-grid-item" style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Viewport</div>
