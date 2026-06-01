@@ -118,12 +118,12 @@ export default function Home() {
             overflow-x: auto !important;
             scroll-snap-type: x mandatory !important;
             -webkit-overflow-scrolling: touch !important;
-            gap: 1rem !important;
+            gap: 0.75rem !important;
             padding-bottom: 1rem !important;
             background: transparent !important;
           }
           .home-cards-grid > a {
-            flex: 0 0 80vw !important;
+            flex: 0 0 75vw !important;
             scroll-snap-align: start !important;
           }
           .home-cards-grid::-webkit-scrollbar { display: none !important; }
@@ -279,7 +279,7 @@ export default function Home() {
                           {item.slug === 'hostel-app' ? '2024' : '2025'}
                         </span>
                       </div>
-                      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.4, fontFamily: 'Geist, Inter, system-ui, sans-serif', marginTop: '0.25rem' }}>
+                      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.4, fontFamily: 'Geist, Inter, system-ui, sans-serif', margin: 0 }}>
                         {item.desc}
                       </p>
                     </div>

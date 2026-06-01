@@ -72,28 +72,44 @@ export default function Projects() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
+        .projects-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+          background: transparent;
+          align-items: stretch;
+        }
+
+        .projects-grid > a {
+          display: block;
+          min-width: 0;
+        }
+
+        .projects-grid > a > div {
+          height: 100%;
+          aspect-ratio: 3 / 4;
+        }
+
+        /* Mobile adjustments */
         @media (max-width: 640px) {
           .projects-grid {
-            display: flex !important;
-            flex-direction: row !important;
-            overflow-x: auto !important;
-            scroll-snap-type: x mandatory !important;
-            -webkit-overflow-scrolling: touch !important;
-            gap: 1rem !important;
-            padding-bottom: 1rem !important;
+            gap: 0.75rem;
           }
-          .projects-grid > a {
-            flex: 0 0 80vw !important;
-            scroll-snap-align: start !important;
+          .projects-grid > a > div {
+            aspect-ratio: 3 / 4;
           }
-          .projects-grid::-webkit-scrollbar { display: none !important; }
-          .projects-grid { background: transparent !important; }
-          .projects-wrapper { padding-bottom: 4rem !important; }
+        }
+
+        /* Tablet gap adjustment */
+        @media (min-width: 641px) and (max-width: 900px) {
+          .projects-grid {
+            gap: 1rem;
+          }
         }
       `}</style>
 
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
-        <div className="projects-wrapper" style={{ padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 4rem', maxWidth: 1000, margin: '0 auto' }}>
+        <div style={{ padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 4rem', maxWidth: 1000, margin: '0 auto' }}>
 
           {/* Header */}
           <div style={{ marginBottom: '2rem' }}>
@@ -183,20 +199,19 @@ export default function Projects() {
             </div>
           </div>
 
-          {/* Projects grid - with className for mobile horizontal scroll */}
-          <div className="projects-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem', background: 'transparent' }}>
+          {/* Projects grid */}
+          <div className="projects-grid">
             {filteredProjects.map((project, idx) => (
               <Link key={idx} href={`/projects/${project.slug}`} style={{ textDecoration: 'none' }}>
                 <div
                   style={{
                     position: 'relative',
-                    borderRadius: '1rem',
+                    borderRadius: '0.75rem',
                     overflow: 'hidden',
                     border: '1px solid rgba(255,255,255,0.08)',
                     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                     cursor: 'pointer',
                     backgroundColor: '#141414',
-                    aspectRatio: '3 / 4',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'scale(1.02)';
@@ -210,28 +225,47 @@ export default function Projects() {
                   <div style={{
                     position: 'relative', zIndex: 2,
                     display: 'flex', flexDirection: 'column',
-                    justifyContent: 'space-between', height: '100%', padding: '1.5rem',
+                    justifyContent: 'space-between', height: '100%', padding: '1rem',
                   }}>
                     <div style={{ flex: 1 }} />
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem' }}>
+                      {/* Title and year row - perfectly top aligned */}
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'flex-start',
+                        gap: '0.5rem',
+                        marginBottom: '0.25rem',
+                      }}>
                         <h3 style={{
-                          fontSize: 18, fontWeight: 600, color: 'white',
+                          fontSize: 'clamp(12px, 3.5vw, 16px)', 
+                          fontWeight: 600, color: 'white',
                           fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                          letterSpacing: '-0.01em', margin: 0,
+                          letterSpacing: '-0.01em', 
+                          margin: 0,
+                          lineHeight: 1.3,
+                          flex: 1,
                         }}>
                           {project.name}
                         </h3>
                         <span style={{
-                          fontSize: 13, fontFamily: 'Geist Mono, monospace',
-                          letterSpacing: '0.02em', color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap',
+                          fontSize: 'clamp(10px, 3vw, 12px)', 
+                          fontFamily: 'Geist Mono, monospace',
+                          letterSpacing: '0.02em', 
+                          color: 'rgba(255,255,255,0.5)', 
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.3,
+                          flexShrink: 0,
                         }}>
                           {project.year}
                         </span>
                       </div>
                       <p style={{
-                        fontSize: 12, color: 'rgba(255,255,255,0.85)',
-                        lineHeight: 1.4, fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                        fontSize: 'clamp(10px, 3vw, 12px)', 
+                        color: 'rgba(255,255,255,0.7)',
+                        lineHeight: 1.4, 
+                        fontFamily: 'Geist, Inter, system-ui, sans-serif',
+                        margin: 0,
                         marginTop: '0.25rem',
                       }}>
                         {project.desc}
