@@ -30,7 +30,7 @@ function SkillPill({ label, icon }: { label: string; icon?: React.ReactNode }) {
       gap: 5,
       padding: '4px 10px',
       border: '0.5px solid rgba(255,255,255,0.15)',
-      borderRadius: 20,
+      borderRadius: 8,
       fontSize: 12,
       color: 'rgba(255,255,255,0.6)',
       background: '#141414',
@@ -43,13 +43,6 @@ function SkillPill({ label, icon }: { label: string; icon?: React.ReactNode }) {
 }
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
-
-const PremierIcon = () => (
-  <svg viewBox="0 0 24 24" width="12" height="12">
-    <rect width="24" height="24" rx="3" fill="#00005B"/>
-    <path d="M6 17V7h3.5c2.5 0 4 1.3 4 3.3 0 2.2-1.6 3.4-4.2 3.4H8v3H6zm2-4.8h1.4c1.4 0 2.1-.6 2.1-1.8S10.8 8.7 9.4 8.7H8v3.5zM15 17V9.5h1.8v1c.5-.8 1.2-1.2 2.2-1.2v1.8c-1.3 0-2.2.7-2.2 2.2V17H15z" fill="#9999FF"/>
-  </svg>
-);
 
 const CapCutIcon = () => (
   <svg viewBox="0 0 24 24" width="12" height="12">
@@ -93,29 +86,9 @@ const FigmaIcon = () => (
   </svg>
 );
 
-const RiveIcon = () => (
-  <svg viewBox="0 0 24 24" width="12" height="12" fill="white">
-    <path d="M4 4h7C14 4 17 6.9 17 10s-3 6-6 6H9v4H4V4zm5 8h2c1.7 0 3-1.3 3-3s-1.3-3-3-3H9v6z"/>
-    <path d="M16.5 12l4 8h-4.5l-3.5-7"/>
-  </svg>
-);
-
-const HTML5Icon = () => (
-  <svg viewBox="0 0 24 24" width="12" height="12">
-    <path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.565-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z" fill="#E34F26"/>
-  </svg>
-);
-
 const CSS3Icon = () => (
   <svg viewBox="0 0 24 24" width="12" height="12">
     <path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm17.09 4.413L5.41 4.41l.213 2.622 10.125.002-.255 2.716h-6.64l.24 2.573h6.182l-.366 3.523-2.91.804-2.956-.81-.188-2.11h-2.61l.29 3.855L12 19.288l5.373-1.53L18.59 4.414z" fill="#1572B6"/>
-  </svg>
-);
-
-const JavaScriptIcon = () => (
-  <svg viewBox="0 0 24 24" width="12" height="12">
-    <rect width="24" height="24" rx="2" fill="#F7DF1E"/>
-    <path d="M6.5 17.5c.4.7.9 1.2 1.9 1.2 1 0 1.6-.5 1.6-1.2 0-.8-.6-1.1-1.7-1.6l-.6-.2c-1.7-.7-2.8-1.6-2.8-3.5 0-1.7 1.3-3 3.4-3 1.5 0 2.5.5 3.3 1.8l-1.8 1.1c-.4-.7-.8-1-1.5-1-.7 0-1.1.4-1.1 1 0 .7.4 1 1.4 1.4l.6.3c2 .8 3.1 1.7 3.1 3.6 0 2.1-1.6 3.2-3.8 3.2-2.1 0-3.5-1-4.2-2.4L6.5 17.5zm8.5.3c.4.8 1 1.3 1.9 1.3 1 0 1.5-.5 1.5-2.3V10h2.2v6.9c0 3.1-1.8 4.5-4.4 4.5-2.3 0-3.7-1.2-4.4-2.7l2.2-1.4z" fill="#000"/>
   </svg>
 );
 
@@ -239,13 +212,12 @@ export default function About() {
               fontFamily: 'Geist, Inter, system-ui, sans-serif',
             }}>
               <p style={{ marginBottom: '1.4rem' }}>
-                  I’m Jeremiah Abban, a design Engineer focused on building 0 → 1 
-                  digital experiences where design, engineering, 
-                  and storytelling operate as a single system rather
-                  than separate stages.
+                  I'm Jeremiah Abban, a Design Engineer and IT professional focused on 
+                  building digital experiences where infrastructure, design, and engineering 
+                  operate as a single system rather than separate stages.
                 </p>
               <p style={{ marginBottom: '1.4rem' }}>
-                  I don’t design in static layers. I design in code 
+                  I don't design in static layers. I design in code 
                   as my creative environment, moving directly from 
                   concept to working interface. This lets me close 
                   the gap between idea and execution, building systems 
@@ -263,16 +235,16 @@ export default function About() {
                 </p>
 
                 <p style={{ marginBottom: '1.4rem' }}>
-                  Beyond core engineering, I’m interested in how AI is reshaping 
+                  Beyond core engineering, I'm interested in how AI is reshaping 
                   product design and development. I explore conversational interfaces,
                   AI-assisted workflows, and how tools like large language models are 
                   changing the way digital systems are built, tested, and iterated.
                 </p>
 
                 <p>
-                  I’m also a digital creator, using storytelling, especially through 
+                  I'm also a digital creator, using storytelling, especially through 
                   football narratives, as a way to build emotionally engaging content 
-                  that still follows structure, rhythm, and intent. It’s another form 
+                  that still follows structure, rhythm, and intent. It's another form 
                   of systems thinking, just expressed through narrative instead of interfaces.
                 </p>
             </div>
@@ -290,28 +262,14 @@ export default function About() {
               <div className="exp-row">
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 500, color: 'white', marginBottom: 4, fontFamily: 'Geist, Inter, system-ui, sans-serif' }}>
-                    Content Creator & Football Storyteller
+                    IT Support
                   </div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontFamily: 'Geist, Inter, system-ui, sans-serif' }}>
-                    TikTok, Facebook & Digital Platforms
+                    African Youth Student Travel Exchange
                   </div>
                 </div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'Geist Mono, monospace', whiteSpace: 'nowrap', marginLeft: '2rem' }}>
-                  Aug 2025 — Present
-                </div>
-              </div>
-
-              <div className="exp-row">
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 500, color: 'white', marginBottom: 4, fontFamily: 'Geist, Inter, system-ui, sans-serif' }}>
-                    UI/UX Designer & Frontend Developer
-                  </div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontFamily: 'Geist, Inter, system-ui, sans-serif' }}>
-                    Freelance / Personal Projects
-                  </div>
-                </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'Geist Mono, monospace', whiteSpace: 'nowrap', marginLeft: '2rem' }}>
-                  2024 — Present
+                  Jan 2023 — Present
                 </div>
               </div>
 
@@ -366,8 +324,8 @@ export default function About() {
             </div>
           </div>
 
-          {/* 03. The Stack & Skills — now 2×2 balanced grid */}
-           <div style={{ marginBottom: '0' }}>
+          {/* 03. The Stack & Skills */}
+          <div style={{ marginBottom: '0' }}>
             <SectionLabel number="03" title="The Stack & Skills" />
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
@@ -377,22 +335,14 @@ export default function About() {
                 <div className="skill-group">
                   <div className="skill-group-label" style={{ fontSize: 14, fontWeight: 600, color: 'white', marginBottom: '0.85rem' }}>Front-End Engineering & UI</div>
                   <div className="skill-pills">
-                    <SkillPill label="React.js" icon={<ReactIcon />} />
+                    <SkillPill label="React" icon={<ReactIcon />} />
                     <SkillPill label="Next.js" icon={<NextIcon />} />
                     <SkillPill label="TypeScript" icon={<TSIcon />} />
                     <SkillPill label="Tailwind CSS" icon={<TailwindIcon />} />
                     <SkillPill label="Shadcn/ui" />
-                    <SkillPill label="HTML5" icon={<HTML5Icon />} />
-                    <SkillPill label="CSS3" icon={<CSS3Icon />} />
-                    <SkillPill label="JavaScript" icon={<JavaScriptIcon />} />
+                    <SkillPill label="CSS" icon={<CSS3Icon />} />
                     <SkillPill label="Figma" icon={<FigmaIcon />} />
                     <SkillPill label="Git" icon={<GitIcon />} />
-                    <SkillPill label="Responsive Web Design" />
-                    <SkillPill label="Component-Based UI" />
-                    <SkillPill label="UI Animation" />
-                    <SkillPill label="Mobile-First Design" />
-                    <SkillPill label="Wireframing & Prototyping" />
-                    <SkillPill label="Design Systems" />
                   </div>
                 </div>
 
@@ -404,11 +354,26 @@ export default function About() {
                     <SkillPill label="Component Architecture" />
                     <SkillPill label="UI Frameworks" />
                     <SkillPill label="Interaction Patterns" />
-                    <SkillPill label="Client-Server Architecture" />
-                    <SkillPill label="REST API Integration" />
-                    <SkillPill label="Frontend Architecture" />
-                    <SkillPill label="State Management" />
-                    <SkillPill label="Web Performance" />
+                  </div>
+                </div>
+
+                <div className="skill-group">
+                  <div className="skill-group-label" style={{ fontSize: 14, fontWeight: 600, color: 'white', marginBottom: '0.85rem' }}>
+                    IT & Networking
+                  </div>
+                  <div className="skill-pills">
+                    <SkillPill label="Cisco Packet Tracer" />
+                    <SkillPill label="VLAN Configuration" />
+                    <SkillPill label="Active Directory" />
+                    <SkillPill label="Windows Server" />
+                    <SkillPill label="VMware" />
+                    <SkillPill label="Ubuntu" />
+                    <SkillPill label="PCI-DSS Compliance" />
+                    <SkillPill label="Network Troubleshooting" />
+                    <SkillPill label="PuTTY" />
+                    <SkillPill label="Office 365" />
+                    <SkillPill label="MySQL" />
+                    <SkillPill label="C++" />
                   </div>
                 </div>
               </div>
@@ -420,10 +385,8 @@ export default function About() {
                   <div className="skill-pills">
                     <SkillPill label="Generative AI UX" />
                     <SkillPill label="Agentic Interfaces" />
-                    <SkillPill label="LLM Latency & Motion" />
                     <SkillPill label="Prompt Engineering" />
                     <SkillPill label="AI-Assisted UI/UX" />
-                    <SkillPill label="Conversational UI" />
                     <SkillPill label="AI Workflow Automation" />
                     <SkillPill label="Human-Centered AI" />
                     <SkillPill label="AI-Powered Prototyping" />
@@ -436,7 +399,6 @@ export default function About() {
                 <div className="skill-group">
                   <div className="skill-group-label" style={{ fontSize: 14, fontWeight: 600, color: 'white', marginBottom: '0.85rem' }}>Tools & Workflow</div>
                   <div className="skill-pills">
-                    <SkillPill label="Adobe Premiere Pro" icon={<PremierIcon />} />
                     <SkillPill label="CapCut" icon={<CapCutIcon />} />
                     <SkillPill label="Notion" icon={<NotionIcon />} />
                     <SkillPill label="Vercel" icon={<VercelIcon />} />
@@ -445,7 +407,6 @@ export default function About() {
                     <SkillPill label="Research & Discovery" />
                     <SkillPill label="User Flow Planning" />
                     <SkillPill label="Prototype Testing" />
-                    <SkillPill label="Deployment & Optimization" />
                   </div>
                 </div>
               </div>

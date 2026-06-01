@@ -8,7 +8,7 @@ import { posts } from '@/lib/blog';
 const featuredWork = [
   {
     name: 'RemedyCare HARS UI',
-    desc: 'Health Administration & Records System for RemedyCare Technologies Ltd',
+    desc: 'Health Administration & Records System',
     slug: 'remedycare-hars',
   },
   {
@@ -275,7 +275,9 @@ export default function Home() {
                         <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', fontFamily: 'Geist, Inter, system-ui, sans-serif', letterSpacing: '-0.01em', margin: 0 }}>
                           {item.name}
                         </h3>
-                        <span style={{ fontSize: 13, fontFamily: 'Geist Mono, monospace', color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap' }}>2025</span>
+                        <span style={{ fontSize: 13, fontFamily: 'Geist Mono, monospace', color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap' }}>
+                          {item.slug === 'hostel-app' ? '2024' : '2025'}
+                        </span>
                       </div>
                       <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.4, fontFamily: 'Geist, Inter, system-ui, sans-serif', marginTop: '0.25rem' }}>
                         {item.desc}

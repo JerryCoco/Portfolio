@@ -26,7 +26,7 @@ const projectData: Record<string, {
   },
   'hostel-app': {
     name: 'Hostel App UI',
-    year: '2025',
+    year: '2024',
     role: 'UI/UX Designer',
     desc: 'Hostel management & booking experience',
     overview: 'A hostel management and booking experience that simplifies room allocation, payments, and occupant management for hostel administrators and students alike.',

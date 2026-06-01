@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 const allProjects = [
   {
     name: 'RemedyCare HARS UI',
-    desc: 'Health Administration & Records System for RemedyCare Technologies Ltd',
+    desc: 'Health Administration & Records System',
     category: 'ui-ux',
     year: '2025',
     slug: 'remedycare-hars',
@@ -23,7 +23,7 @@ const allProjects = [
     name: 'Hostel App UI',
     desc: 'Hostel management & booking experience',
     category: 'ui-ux',
-    year: '2025',
+    year: '2024',
     slug: 'hostel-app',
   },
 ];

@@ -98,15 +98,54 @@ export default function Footer() {
 
   return (
     <footer style={{ marginTop: '5rem', marginBottom: 72, padding: 0, background: '#0d0d0d' }}>
-      {/* Responsive CSS */}
+      {/* Responsive CSS with mobile touch improvements */}
       <style>{`
         @media (max-width: 768px) {
-          .footer-grid { grid-template-columns: 1fr !important; }
-          .footer-nav-row { flex-direction: column !important; gap: 2rem !important; }
-          .footer-links { flex-direction: column !important; align-items: flex-start !important; gap: 0.6rem !important; }
-          .footer-links .separator { display: none !important; }
-          .footer-copyright { flex-direction: column !important; gap: 0.25rem !important; text-align: center !important; }
-          .footer-divider { display: none !important; }
+          .footer-grid { 
+            grid-template-columns: 1fr !important; 
+          }
+          .footer-grid-item {
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+          }
+          .footer-grid-item:last-child {
+            border-bottom: none;
+          }
+          .footer-empty-cell {
+            display: none !important;
+          }
+          .footer-nav-row { 
+            flex-direction: column !important; 
+            gap: 2rem !important; 
+          }
+          .footer-links { 
+            flex-direction: column !important; 
+            align-items: flex-start !important; 
+            gap: 0.6rem !important; 
+          }
+          .footer-links .separator { 
+            display: none !important; 
+          }
+          .footer-copyright { 
+            flex-direction: column !important; 
+            gap: 0.5rem !important; 
+            text-align: center !important;
+            align-items: center !important;
+          }
+          .footer-divider { 
+            display: none !important; 
+          }
+          .tap-effect {
+            min-height: 44px;
+            display: inline-flex !important;
+            align-items: center;
+            transition: opacity 0.15s ease;
+          }
+          .tap-effect:active {
+            opacity: 0.55;
+          }
+          * {
+            -webkit-tap-highlight-color: rgba(255,255,255,0.1);
+          }
         }
       `}</style>
 
@@ -115,10 +154,10 @@ export default function Footer() {
 
           {/* Grid with footer-grid class - 3 columns */}
           <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', position: 'relative' }}>
-            <div style={{ padding: '1.75rem 2rem' }}>
+            <div className="footer-grid-item" style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>VERSE</div>
-              <a href={verse.url} target="_blank" rel="noopener noreferrer"
-                style={{ ...monoStyle, textDecoration: 'none', transition: 'color 0.2s' }}
+              <a href={verse.url} target="_blank" rel="noopener noreferrer" className="tap-effect"
+                style={{ ...monoStyle, textDecoration: 'none', transition: 'color 0.2s', display: 'inline-block', padding: '4px 0' }}
                 onMouseEnter={e => e.currentTarget.style.color = 'white'}
                 onMouseLeave={e => e.currentTarget.style.color = textColor}>
                 {verse.ref}
@@ -126,30 +165,26 @@ export default function Footer() {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 6, lineHeight: 1.4 }}>{verse.text}</div>
             </div>
 
-            <div style={{ padding: '1.75rem 2rem' }}>
+            <div className="footer-grid-item" style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>WORD</div>
               <div style={valueStyle}>"{quote.text}"</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>— {quote.author}</div>
             </div>
 
-            <div style={{ padding: '1.75rem 2rem' }} />
+            <div className="footer-grid-item footer-empty-cell" style={{ padding: '1.75rem 2rem' }} />
 
-            <div style={{ padding: '1.75rem 2rem' }}>
+            <div className="footer-grid-item" style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Viewport</div>
               <div style={monoStyle}>{viewport}</div>
             </div>
-            <div style={{ padding: '1.75rem 2rem' }}>
+            <div className="footer-grid-item" style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Shipped</div>
-              <div style={valueStyle}>Apr 2026</div>
+              <div style={valueStyle}>June 2026</div>
             </div>
-            <div style={{ padding: '1.75rem 2rem' }}>
+            <div className="footer-grid-item" style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Local</div>
               <div style={monoStyle}>{time}</div>
             </div>
-
-            {/* Vertical dividers with footer-divider class */}
-            <div className="footer-divider" style={{ position: 'absolute', left: '33.33%', top: '1.75rem', bottom: '1.75rem', width: 1, background: dividerColor, pointerEvents: 'none' }} />
-            <div className="footer-divider" style={{ position: 'absolute', left: '66.66%', top: '1.75rem', bottom: '1.75rem', width: 1, background: dividerColor, pointerEvents: 'none' }} />
           </div>
 
           {/* Nav row with footer-nav-row class */}
@@ -159,7 +194,7 @@ export default function Footer() {
 
             <div>
               <div style={labelStyle}>On This Site</div>
-              {/* On This Site links - updated to 16px sans-serif */}
+              {/* On This Site links */}
               <div className="footer-links" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', fontSize: 20, color: textColor, fontFamily: 'Instrument Serif, serif' }}>
                 {[
                   { label: 'Home', href: '/' },
@@ -169,10 +204,12 @@ export default function Footer() {
                   { label: 'Guestbook', href: '/guestbook' },
                 ].map((link, i, arr) => (
                   <span key={link.href} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Link href={link.href} style={{ 
+                    <Link href={link.href} className="tap-effect" style={{ 
                       color: pathname === link.href ? 'white' : textColor, 
                       textDecoration: 'none', 
                       transition: 'color 0.2s',
+                      padding: '8px 0',
+                      display: 'inline-block'
                     }}
                       onMouseEnter={e => e.currentTarget.style.color = 'white'}
                       onMouseLeave={e => e.currentTarget.style.color = pathname === link.href ? 'white' : textColor}>
@@ -186,7 +223,7 @@ export default function Footer() {
 
             <div style={{ textAlign: 'left' }}>
               <div style={labelStyle}>Elsewhere</div>
-              {/* Elsewhere links - updated to 16px sans-serif */}
+              {/* Elsewhere links */}
               <div className="footer-links" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', fontSize: 20, color: textColor, fontFamily: 'Instrument Serif, serif' }}>
                 {[
                   { label: 'Twitter', href: 'https://x.com/jeremiahabban' },
@@ -195,7 +232,8 @@ export default function Footer() {
                   { label: 'TikTok', href: 'https://www.tiktok.com/@coco001_j' },
                 ].map((link, i, arr) => (
                   <span key={link.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <a href={link.href} target="_blank" rel="noopener noreferrer" style={{ color: textColor, textDecoration: 'none', transition: 'color 0.2s' }}
+                    <a href={link.href} target="_blank" rel="noopener noreferrer" className="tap-effect"
+                      style={{ color: textColor, textDecoration: 'none', transition: 'color 0.2s', padding: '8px 0', display: 'inline-block' }}
                       onMouseEnter={e => e.currentTarget.style.color = 'white'}
                       onMouseLeave={e => e.currentTarget.style.color = textColor}>
                       {link.label}
