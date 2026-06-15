@@ -2,20 +2,197 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+// MoreProjectCard component with cursor-following pill
+function MoreProjectCard({ p }: { p: { name: string; desc: string; heroImage: string } }) {
+  const [pillPos, setPillPos] = useState({ x: 0, y: 0 });
+  const [pillVisible, setPillVisible] = useState(false);
+
+  return (
+    <div
+      style={{ borderRadius: '1rem', overflow: 'hidden', background: 'transparent', cursor: 'none' }}
+      onMouseMove={e => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setPillPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      }}
+      onMouseEnter={() => setPillVisible(true)}
+      onMouseLeave={() => setPillVisible(false)}
+    >
+      {/* Image */}
+      <div style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', borderRadius: '1rem' }}>
+        <img
+          src={p.heroImage}
+          alt={p.name}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
+        {/* Cursor-following pill */}
+        <div style={{
+          position: 'absolute',
+          left: pillPos.x,
+          top: pillPos.y,
+          transform: 'translate(-50%, -50%)',
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(8px)',
+          color: '#111',
+          fontSize: 12, fontWeight: 500,
+          fontFamily: 'Geist, Inter, sans-serif',
+          padding: '6px 14px', borderRadius: 999,
+          display: 'flex', alignItems: 'center', gap: '5px',
+          opacity: pillVisible ? 1 : 0,
+          transition: 'opacity 0.15s ease',
+          pointerEvents: 'none',
+          whiteSpace: 'nowrap',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+        }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 17L17 7M7 7h10v10"/>
+          </svg>
+          View Project
+        </div>
+      </div>
+
+      {/* Text below */}
+      <div style={{ padding: '1rem 0.5rem' }}>
+        <p style={{ fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.9)', fontFamily: 'Geist, Inter, sans-serif', margin: 0, marginBottom: '0.25rem' }}>
+          {p.name}
+        </p>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'Geist, Inter, sans-serif', margin: 0 }}>
+          {p.desc}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// SectionImage component with both dark circle button and cursor-following pill
+function SectionImage({ src, alt, onOpen }: { src: string; alt: string; onOpen: () => void }) {
+  const [pillPos, setPillPos] = useState({ x: 0, y: 0 });
+  const [pillVisible, setPillVisible] = useState(false);
+
+  return (
+    <div
+      style={{ position: 'relative', width: '100%', borderRadius: '1rem', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', cursor: 'none' }}
+      onClick={onOpen}
+      onMouseMove={e => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setPillPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      }}
+      onMouseEnter={() => setPillVisible(true)}
+      onMouseLeave={() => setPillVisible(false)}
+    >
+      <img
+        src={src}
+        alt={alt}
+        style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }}
+      />
+
+      {/* Dark circle button — top right */}
+      <div style={{
+        position: 'absolute', top: 12, right: 12,
+        width: 32, height: 32, borderRadius: '50%',
+        background: 'rgba(0,0,0,0.75)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        pointerEvents: 'none',
+      }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+      </div>
+
+      {/* Cursor-following View pill */}
+      <div style={{
+        position: 'absolute',
+        left: pillPos.x,
+        top: pillPos.y,
+        transform: 'translate(-50%, -50%)',
+        background: 'rgba(255,255,255,0.92)',
+        backdropFilter: 'blur(8px)',
+        color: '#111',
+        fontSize: 12, fontWeight: 500,
+        fontFamily: 'Geist, Inter, sans-serif',
+        padding: '6px 14px', borderRadius: 999,
+        display: 'flex', alignItems: 'center', gap: '5px',
+        opacity: pillVisible ? 1 : 0,
+        transition: 'opacity 0.15s ease',
+        pointerEvents: 'none',
+        whiteSpace: 'nowrap',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+      }}>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7 17L17 7M7 7h10v10"/>
+        </svg>
+        View
+      </div>
+    </div>
+  );
+}
 
 const projectData: Record<string, {
   name: string;
   year: string;
+  timeline: string;
   role: string;
+  team: string;
+  stack: string[];
   desc: string;
   tldr: string;
   sections: { title: string; body: string; image?: string; imageAlt?: string }[];
   heroImage: string;
 }> = {
+  'attendance-app': {
+    name: 'RollCall',
+    year: '2025',
+    timeline: '3 Months / 2025',
+    role: 'UI/UX Designer',
+    team: '1 Designer',
+    stack: ['Figma'],
+    desc: 'Smart attendance tracking system design',
+    tldr: 'RollCall is a smart attendance management app designed for university students and lecturers. I led the full UI design from onboarding to check-in to reporting, with a focus on speed, clarity, and three flexible check-in modes: GPS, QR Code, and Smart Entry Code.',
+    heroImage: '/images/rollcall/hero.webp',
+    sections: [
+      {
+        title: 'The Problem',
+        body: 'Manual attendance in universities is slow, error-prone, and easy to game. Lecturers waste the first 10 minutes of every class calling names. Students sign for absent friends. Records get lost or miscounted. RollCall was designed to fix all of that, making attendance something that just happens, accurately and instantly, without disrupting the flow of a class. The goal was simple: a student opens the app, clocks in, and sits down. No paper. No waiting.',
+      },
+      {
+        title: 'Onboarding & Authentication',
+        body: 'The onboarding flow was designed to be fast and reassuring. Students sign up with their university email, verify with a one-time code, and add a phone number as a backup. Three steps, no friction, no confusion. Each screen uses clear labels, large touch targets, and inline validation so students never hit a wall mid-signup. The visual language stays warm and approachable throughout, using the blue-to-violet gradient to signal trust and forward momentum from the very first screen.',
+        image: '/images/rollcall/onboarding.webp',
+        imageAlt: 'RollCall onboarding screens showing Sign Up, Login and Email Verification',
+      },
+      {
+        title: 'Dashboard & Core Experience',
+        body: 'The home screen is the heart of RollCall. At a glance, students see their overall attendance percentage as a circular progress ring, a calendar strip showing the current week, a card for their next upcoming class with a live countdown, and the CLOCK IN button as the dominant action. Everything on this screen was prioritised by how often a student would need it. The percentage ring answers "am I at risk?" in one second. The next class card answers "where do I need to be?" without any navigation. The CLOCK IN button is large, centred, and impossible to miss.',
+        image: '/images/rollcall/hero.webp',
+        imageAlt: 'RollCall dashboard showing attendance ring, next class card and CLOCK IN button',
+      },
+      {
+        title: 'Schedule View',
+        body: 'The schedule screen gives students a full view of their weekly timetable. Course names, times, venues, and lecturers are all visible without extra taps. The calendar strip at the top lets users swipe between days quickly, and each class card shows the check-in status directly so students always know where they stand. Colour coding was used deliberately: green for attended, amber for upcoming, red for missed. No legend needed, the meaning is immediate.',
+        image: '/images/rollcall/schedule.webp',
+        imageAlt: 'RollCall schedule screen showing weekly timetable and class status cards',
+      },
+      {
+        title: 'Attendance History & 3 Check-in Modes',
+        body: 'The history screen shows a full log of every class with the date, lecturer, check-in time, and the method used. This is where RollCall\'s biggest design decision lives: three check-in modes built for real-world flexibility. GPS-Based check-in auto-detects when a student enters the classroom zone, requiring zero interaction. QR Code check-in lets the lecturer display a scannable code on a projector. Smart Entry Code gives the lecturer a rotating alphanumeric code to share verbally, no projector needed. This three-mode approach came directly from the reality of university classrooms in Ghana, where WiFi can be unstable, projectors are not always available, and no single method works everywhere. The history log also includes a streak system. When a student hits a strong attendance run, the app celebrates it with a full-screen animation, turning consistency into something worth showing off.',
+        image: '/images/rollcall/data-delight.webp',
+        imageAlt: 'RollCall attendance history log and streak celebration screen',
+      },
+      {
+        title: 'What I Learned',
+        body: 'RollCall taught me that the best mobile interfaces are the ones that respect the user\'s time. Every screen had to earn its place. If it did not help a student clock in faster, understand their standing quicker, or feel more in control of their academic record, it did not belong. The three check-in modes were the hardest decision. It would have been easier to pick one. But designing for the average user would have failed the majority. Designing for the real environment, unstable WiFi, mixed classroom setups, lecturers with different preferences, meant building flexibility in from the start.',
+      },
+    ],
+  },
   'remedycare-hars': {
     name: 'RemedyCare HARS UI',
     year: '2025',
+    timeline: '2 Months / 2025',
     role: 'UI/UX Designer',
+    team: '2 Designers',
+    stack: ['Figma'],
     desc: 'Health Administration & Records System',
     tldr: 'RemedyCare HARS is a full health administration and records system built for clinical teams. I designed the end-to-end interface covering five user roles: Doctor, Nurse, Patient, Administrator, and Lab, each with their own dashboard, data views, and workflows. The goal was to make a complex clinical system feel organised, fast, and human.',
     heroImage: '/images/hars/hero.webp',
@@ -78,52 +255,13 @@ const projectData: Record<string, {
       },
     ],
   },
-  'attendance-app': {
-    name: 'RollCall',
-    year: '2025',
-    role: 'UI/UX Designer',
-    desc: 'Smart attendance tracking system design',
-    tldr: 'RollCall is a smart attendance management app designed for university students and lecturers. I led the full UI design from onboarding to check-in to reporting, with a focus on speed, clarity, and three flexible check-in modes: GPS, QR Code, and Smart Entry Code.',
-    heroImage: '/images/rollcall/hero.webp',
-    sections: [
-      {
-        title: 'The Problem',
-        body: 'Manual attendance in universities is slow, error-prone, and easy to game. Lecturers waste the first 10 minutes of every class calling names. Students sign for absent friends. Records get lost or miscounted. RollCall was designed to fix all of that, making attendance something that just happens, accurately and instantly, without disrupting the flow of a class. The goal was simple: a student opens the app, clocks in, and sits down. No paper. No waiting.',
-      },
-      {
-        title: 'Onboarding & Authentication',
-        body: 'The onboarding flow was designed to be fast and reassuring. Students sign up with their university email, verify with a one-time code, and add a phone number as a backup. Three steps, no friction, no confusion. Each screen uses clear labels, large touch targets, and inline validation so students never hit a wall mid-signup. The visual language stays warm and approachable throughout, using the blue-to-violet gradient to signal trust and forward momentum from the very first screen.',
-        image: '/images/rollcall/onboarding.webp',
-        imageAlt: 'RollCall onboarding screens showing Sign Up, Login and Email Verification',
-      },
-      {
-        title: 'Dashboard & Core Experience',
-        body: 'The home screen is the heart of RollCall. At a glance, students see their overall attendance percentage as a circular progress ring, a calendar strip showing the current week, a card for their next upcoming class with a live countdown, and the CLOCK IN button as the dominant action. Everything on this screen was prioritised by how often a student would need it. The percentage ring answers "am I at risk?" in one second. The next class card answers "where do I need to be?" without any navigation. The CLOCK IN button is large, centred, and impossible to miss.',
-        image: '/images/rollcall/hero.webp',
-        imageAlt: 'RollCall dashboard showing attendance ring, next class card and CLOCK IN button',
-      },
-      {
-        title: 'Schedule View',
-        body: 'The schedule screen gives students a full view of their weekly timetable. Course names, times, venues, and lecturers are all visible without extra taps. The calendar strip at the top lets users swipe between days quickly, and each class card shows the check-in status directly so students always know where they stand. Colour coding was used deliberately: green for attended, amber for upcoming, red for missed. No legend needed, the meaning is immediate.',
-        image: '/images/rollcall/schedule.webp',
-        imageAlt: 'RollCall schedule screen showing weekly timetable and class status cards',
-      },
-      {
-        title: 'Attendance History & 3 Check-in Modes',
-        body: 'The history screen shows a full log of every class with the date, lecturer, check-in time, and the method used. This is where RollCall\'s biggest design decision lives: three check-in modes built for real-world flexibility. GPS-Based check-in auto-detects when a student enters the classroom zone, requiring zero interaction. QR Code check-in lets the lecturer display a scannable code on a projector. Smart Entry Code gives the lecturer a rotating alphanumeric code to share verbally, no projector needed. This three-mode approach came directly from the reality of university classrooms in Ghana, where WiFi can be unstable, projectors are not always available, and no single method works everywhere. The history log also includes a streak system. When a student hits a strong attendance run, the app celebrates it with a full-screen animation, turning consistency into something worth showing off.',
-        image: '/images/rollcall/data-delight.webp',
-        imageAlt: 'RollCall attendance history log and streak celebration screen',
-      },
-      {
-        title: 'What I Learned',
-        body: 'RollCall taught me that the best mobile interfaces are the ones that respect the user\'s time. Every screen had to earn its place. If it did not help a student clock in faster, understand their standing quicker, or feel more in control of their academic record, it did not belong. The three check-in modes were the hardest decision. It would have been easier to pick one. But designing for the average user would have failed the majority. Designing for the real environment, unstable WiFi, mixed classroom setups, lecturers with different preferences, meant building flexibility in from the start.',
-      },
-    ],
-  },
   'hostel-app': {
     name: 'Hostel App UI',
     year: '2024',
+    timeline: '6 Weeks / 2024',
     role: 'UI/UX Designer',
+    team: '1 Designer',
+    stack: ['Figma'],
     desc: 'Hostel management & booking experience',
     tldr: 'Hostel App is a hostel booking app designed for university students in Ghana. I designed the full mobile experience from browsing available hostels to selecting a room type, entering student details, and completing payment checkout, with a focus on simplicity, transparency, and trust at every step.',
     heroImage: '/images/hostel/hero.webp',
@@ -163,6 +301,52 @@ export default function ProjectPage() {
   const project = params?.project as string;
   const data = projectData[project];
 
+  // Lightbox state + logic with zoom
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number; zoom: number } | null>(null);
+
+  // Collect all section images (excluding hero)
+  const sectionImages = data?.sections
+    .filter(s => s.image)
+    .map(s => s.image as string) || [];
+
+  const openLightbox = (imageSrc: string) => {
+    const index = sectionImages.indexOf(imageSrc);
+    setLightbox({ images: sectionImages, index, zoom: 1 });
+  };
+
+  const closeLightbox = () => setLightbox(null);
+
+  const prevImage = () => setLightbox(prev => prev ? { ...prev, index: Math.max(0, prev.index - 1), zoom: 1 } : null);
+  const nextImage = () => setLightbox(prev => prev ? { ...prev, index: Math.min(prev.images.length - 1, prev.index + 1), zoom: 1 } : null);
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!lightbox) return;
+      if (e.key === 'ArrowLeft') prevImage();
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'Escape') closeLightbox();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightbox]);
+
+  // Force mobile grid on resize
+  useEffect(() => {
+    const handleResize = () => {
+      const grid = document.querySelector('.more-projects-grid') as HTMLElement;
+      if (grid && window.innerWidth <= 640) {
+        grid.style.gridTemplateColumns = '1fr';
+      } else if (grid) {
+        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      }
+    };
+    
+    handleResize(); // Run on mount
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!data) {
     return (
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Geist, Inter, sans-serif' }}>
@@ -178,6 +362,12 @@ export default function ProjectPage() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+
+        @media (max-width: 640px) {
+          .more-projects-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
       `}</style>
 
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
@@ -216,17 +406,35 @@ export default function ProjectPage() {
             {data.desc}
           </p>
 
-          {/* Meta row */}
+          {/* Meta row - no borders, clean spacing */}
           <div style={{
-            display: 'flex', gap: '2.5rem', flexWrap: 'wrap',
-            borderTop: '1px solid rgba(255,255,255,0.08)',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
-            padding: '1.25rem 0', marginBottom: '3rem',
+            display: 'grid', gridTemplateColumns: '1fr 1fr',
+            gap: '2rem 2.5rem',
+            padding: '0.5rem 0', marginBottom: '3rem',
           }}>
-            {[{ label: 'Year', value: data.year }, { label: 'Role', value: data.role }].map(({ label, value }) => (
+            {[
+              { label: 'Timeline', value: data.timeline },
+              { label: 'Role', value: data.role },
+              { label: 'Team', value: data.team },
+              { label: 'Stack', value: data.stack, isPills: true },
+            ].map(({ label, value, isPills }) => (
               <div key={label}>
-                <div style={{ fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontFamily: 'Geist, Inter, sans-serif', marginBottom: '0.25rem' }}>{label}</div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontFamily: 'Geist, Inter, sans-serif' }}>{value}</div>
+                <div style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', fontFamily: 'Geist, Inter, sans-serif', marginBottom: '0.5rem' }}>{label}</div>
+                {isPills && Array.isArray(value) ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                    {value.map((tag: string) => (
+                      <span key={tag} style={{
+                        fontSize: 12, color: 'rgba(255,255,255,0.7)',
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        padding: '3px 10px', borderRadius: 999,
+                        fontFamily: 'Geist, Inter, sans-serif',
+                      }}>{tag}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.92)', fontFamily: 'Geist, Inter, sans-serif', letterSpacing: '-0.01em' }}>{value as string}</div>
+                )}
               </div>
             ))}
           </div>
@@ -288,49 +496,117 @@ export default function ProjectPage() {
                 {section.body}
               </p>
               {section.image && (
-                <div style={{
-                  width: '100%',
-                  borderRadius: '1rem',
-                  overflow: 'hidden',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                }}>
-                  <img
-                    src={section.image}
-                    alt={section.imageAlt || section.title}
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      display: 'block',
-                      objectFit: 'cover',
-                    }}
-                  />
-                </div>
+                <SectionImage
+                  src={section.image}
+                  alt={section.imageAlt || section.title}
+                  onOpen={() => openLightbox(section.image!)}
+                />
               )}
             </div>
           ))}
 
           {/* Thank you */}
-          {data.sections.length > 0 && (
-            <div style={{
-              borderTop: '1px solid rgba(255,255,255,0.08)',
-              paddingTop: '3rem',
-              marginTop: '2rem',
-              textAlign: 'center',
+          <div style={{
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            paddingTop: '3rem', marginTop: '2rem', textAlign: 'center',
+          }}>
+            <p style={{
+              fontSize: 20, fontWeight: 500,
+              color: 'rgba(255,255,255,0.85)',
+              fontFamily: 'Instrument Serif, serif',
+              marginBottom: '0.5rem',
             }}>
-              <p style={{
-                fontSize: 13,
-                color: 'rgba(255,255,255,0.25)',
-                fontFamily: 'Geist, Inter, sans-serif',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-              }}>
-                Thank you for reading
-              </p>
+              Thank you for reading
+            </p>
+            <p style={{
+              fontSize: 13, color: 'rgba(255,255,255,0.35)',
+              fontFamily: 'Geist, Inter, sans-serif',
+              maxWidth: 320, margin: '0 auto',
+              lineHeight: 1.6,
+            }}>
+              Feel free to check out my other case studies to learn more about my work and design process.
+            </p>
+          </div>
+
+          {/* More Projects */}
+          <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <p style={{
+              fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.3)', fontFamily: 'Geist, Inter, sans-serif',
+              marginBottom: '1.25rem',
+            }}>
+              More Projects
+            </p>
+
+            <div className="more-projects-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+              {Object.entries(projectData)
+                .filter(([slug]) => slug !== project)
+                .slice(0, 2)
+                .map(([slug, p]) => (
+                  <Link key={slug} href={`/projects/${slug}`} style={{ textDecoration: 'none' }}>
+                    <MoreProjectCard p={p} />
+                  </Link>
+                ))}
             </div>
-          )}
+          </div>
 
         </div>
       </div>
+
+      {/* Lightbox overlay */}
+      {lightbox && (
+        <div
+          onClick={closeLightbox}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.95)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          {/* Counter */}
+          <div style={{ position: 'absolute', top: 24, left: 32, color: 'rgba(255,255,255,0.5)', fontSize: 13, fontFamily: 'Geist, Inter, sans-serif' }}>
+            {lightbox.index + 1} / {lightbox.images.length}
+          </div>
+
+          {/* Close */}
+          <button onClick={closeLightbox} style={{ position: 'absolute', top: 20, right: 28, background: 'none', border: 'none', color: 'white', fontSize: 24, cursor: 'pointer' }}>✕</button>
+
+          {/* Prev */}
+          {lightbox.index > 0 && (
+            <button onClick={e => { e.stopPropagation(); prevImage(); }} style={{ position: 'absolute', left: 24, background: 'none', border: 'none', color: 'white', fontSize: 28, cursor: 'pointer', padding: '1rem' }}>‹</button>
+          )}
+
+          {/* Zoom buttons */}
+          <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '0.5rem', zIndex: 10 }}>
+            <button
+              onClick={e => { e.stopPropagation(); setLightbox(prev => prev ? { ...prev, zoom: Math.max(1, prev.zoom - 0.25) } : null); }}
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: 36, height: 36, borderRadius: '50%', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >−</button>
+            <button
+              onClick={e => { e.stopPropagation(); setLightbox(prev => prev ? { ...prev, zoom: Math.min(3, prev.zoom + 0.25) } : null); }}
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: 36, height: 36, borderRadius: '50%', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >+</button>
+          </div>
+
+          {/* Image */}
+          <img
+            src={lightbox.images[lightbox.index]}
+            onClick={e => e.stopPropagation()}
+            style={{
+              maxWidth: '85vw', maxHeight: '90vh',
+              objectFit: 'contain', borderRadius: 8,
+              transform: `scale(${lightbox.zoom})`,
+              transition: 'transform 0.2s ease',
+              cursor: lightbox.zoom > 1 ? 'grab' : 'default',
+            }}
+          />
+
+          {/* Next */}
+          {lightbox.index < lightbox.images.length - 1 && (
+            <button onClick={e => { e.stopPropagation(); nextImage(); }} style={{ position: 'absolute', right: 24, background: 'none', border: 'none', color: 'white', fontSize: 28, cursor: 'pointer', padding: '1rem' }}>›</button>
+          )}
+        </div>
+      )}
     </>
   );
 }

@@ -6,20 +6,20 @@ import { motion } from 'framer-motion';
 
 const allProjects = [
   {
-    name: 'RemedyCare HARS UI',
-    desc: 'Health Administration & Records System',
-    category: 'ui-ux',
-    year: '2025',
-    slug: 'remedycare-hars',
-    image: '/images/hars/hero.webp',
-  },
-  {
     name: 'Attendance App UI',
     desc: 'Smart attendance tracking system design',
     category: 'ui-ux',
     year: '2025',
     slug: 'attendance-app',
     image: '/images/rollcall/hero.webp',
+  },
+  {
+    name: 'RemedyCare HARS UI',
+    desc: 'Health Administration & Records System',
+    category: 'ui-ux',
+    year: '2025',
+    slug: 'remedycare-hars',
+    image: '/images/hars/hero.webp',
   },
   {
     name: 'Hostel App UI',
@@ -91,6 +91,9 @@ export default function Projects() {
         }
 
         @media (max-width: 640px) {
+          .projects-grid {
+            grid-template-columns: 1fr !important;
+          }
           .projects-grid { gap: 0.75rem; }
           .projects-grid > a > div { aspect-ratio: 3 / 4; }
         }

@@ -73,6 +73,7 @@ function NavIcon({
   isActive: boolean;
 }) {
   const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const touchTimeoutRef = React.useRef<NodeJS.Timeout>();
 
   const distanceFromMouse = useTransform(mouseX, (val) => {
     const el = wrapperRef.current;
@@ -98,6 +99,23 @@ function NavIcon({
 
   const Tag = item.href ? "a" : "button";
 
+  const handleTouchStart = () => {
+    onHover(externalIconRef);
+    // Clear any existing timeout
+    if (touchTimeoutRef.current) {
+      clearTimeout(touchTimeoutRef.current);
+    }
+    // Hide tooltip after 800ms
+    touchTimeoutRef.current = setTimeout(() => {
+      onHover(null);
+    }, 800);
+  };
+
+  const handleTouchEnd = () => {
+    // Don't immediately hide on touch end - let the timeout handle it
+    // This allows the navigation to happen while tooltip is still visible
+  };
+
   return (
     <motion.div
       ref={wrapperRef}
@@ -114,6 +132,8 @@ function NavIcon({
           onClick={item.onClick}
           onMouseEnter={() => onHover(externalIconRef)}
           onMouseLeave={() => onHover(null)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           aria-label={item.label}
           style={{ borderRadius: '50%' }}
           className={cn(

@@ -7,16 +7,16 @@ import { posts } from '@/lib/blog';
 
 const featuredWork = [
   {
-    name: 'RemedyCare HARS UI',
-    desc: 'Health Administration & Records System',
-    slug: 'remedycare-hars',
-    image: '/images/hars/hero.webp',
-  },
-  {
     name: 'Attendance App UI',
     desc: 'Smart attendance tracking system design',
     slug: 'attendance-app',
     image: '/images/rollcall/hero.webp',
+  },
+  {
+    name: 'RemedyCare HARS UI',
+    desc: 'Health Administration & Records System',
+    slug: 'remedycare-hars',
+    image: '/images/hars/hero.webp',
   },
   {
     name: 'Hostel App UI',
