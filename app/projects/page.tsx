@@ -11,6 +11,7 @@ const allProjects = [
     category: 'ui-ux',
     year: '2025',
     slug: 'remedycare-hars',
+    image: '/images/hars/hero.webp',
   },
   {
     name: 'Attendance App UI',
@@ -18,6 +19,7 @@ const allProjects = [
     category: 'ui-ux',
     year: '2025',
     slug: 'attendance-app',
+    image: '/images/rollcall/hero.webp',
   },
   {
     name: 'Hostel App UI',
@@ -25,6 +27,7 @@ const allProjects = [
     category: 'ui-ux',
     year: '2024',
     slug: 'hostel-app',
+    image: '/images/hostel/hero.webp',
   },
 ];
 
@@ -56,11 +59,8 @@ export default function Projects() {
     setTabIndicator({ x: btnRect.left - containerRect.left, width: btnRect.width });
   };
 
-  // Set initial indicator on mount
   useEffect(() => { updateIndicator(activeCategory); }, []);
-  // Update on active change
   useEffect(() => { updateIndicator(activeCategory); }, [activeCategory]);
-  // Update on resize
   useEffect(() => {
     const onResize = () => updateIndicator(activeCategory);
     window.addEventListener('resize', onResize);
@@ -90,21 +90,13 @@ export default function Projects() {
           aspect-ratio: 3 / 4;
         }
 
-        /* Mobile adjustments */
         @media (max-width: 640px) {
-          .projects-grid {
-            gap: 0.75rem;
-          }
-          .projects-grid > a > div {
-            aspect-ratio: 3 / 4;
-          }
+          .projects-grid { gap: 0.75rem; }
+          .projects-grid > a > div { aspect-ratio: 3 / 4; }
         }
 
-        /* Tablet gap adjustment */
         @media (min-width: 641px) and (max-width: 900px) {
-          .projects-grid {
-            gap: 1rem;
-          }
+          .projects-grid { gap: 1rem; }
         }
       `}</style>
 
@@ -134,7 +126,7 @@ export default function Projects() {
             </p>
           </div>
 
-          {/* Filter tabs row */}
+          {/* Filter tabs */}
           <div style={{
             display: 'flex',
             flexWrap: 'wrap' as const,
@@ -155,14 +147,12 @@ export default function Projects() {
                 padding: '3px',
               }}
             >
-              {/* Sliding indicator */}
               <motion.div
                 animate={{ x: tabIndicator.x, width: tabIndicator.width }}
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 style={{
                   position: 'absolute',
-                  top: 3,
-                  left: 0,
+                  top: 3, left: 0,
                   height: 'calc(100% - 6px)',
                   background: 'rgba(255,255,255,0.15)',
                   borderRadius: '7px',
@@ -170,17 +160,14 @@ export default function Projects() {
                   zIndex: 0,
                 }}
               />
-
               {categories.map((cat, idx) => (
                 <button
                   key={cat.id}
                   ref={(el) => (tabRefs.current[idx] = el)}
                   onClick={() => setActiveCategory(cat.id)}
                   style={{
-                    position: 'relative',
-                    zIndex: 1,
-                    background: 'none',
-                    border: 'none',
+                    position: 'relative', zIndex: 1,
+                    background: 'none', border: 'none',
                     color: activeCategory === cat.id ? 'white' : 'rgba(255,255,255,0.55)',
                     fontSize: '13px',
                     fontWeight: activeCategory === cat.id ? 500 : 400,
@@ -222,6 +209,27 @@ export default function Projects() {
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
+                  {/* ── Image ── */}
+                  <img
+                    src={project.image}
+                    alt={project.name}
+                    style={{
+                      position: 'absolute', inset: 0,
+                      width: '100%', height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: project.slug === 'remedycare-hars' ? 'top center' : 'center',
+                      zIndex: 0,
+                    }}
+                  />
+
+                  {/* ── Gradient ── */}
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85) 100%)',
+                    zIndex: 1,
+                  }} />
+
+                  {/* ── Content ── */}
                   <div style={{
                     position: 'relative', zIndex: 2,
                     display: 'flex', flexDirection: 'column',
@@ -229,44 +237,39 @@ export default function Projects() {
                   }}>
                     <div style={{ flex: 1 }} />
                     <div>
-                      {/* Title and year row - perfectly top aligned */}
-                      <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
                         alignItems: 'flex-start',
                         gap: '0.5rem',
                         marginBottom: '0.25rem',
                       }}>
                         <h3 style={{
-                          fontSize: 'clamp(12px, 3.5vw, 16px)', 
+                          fontSize: 'clamp(12px, 3.5vw, 16px)',
                           fontWeight: 600, color: 'white',
                           fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                          letterSpacing: '-0.01em', 
-                          margin: 0,
-                          lineHeight: 1.3,
-                          flex: 1,
+                          letterSpacing: '-0.01em',
+                          margin: 0, lineHeight: 1.3, flex: 1,
                         }}>
                           {project.name}
                         </h3>
                         <span style={{
-                          fontSize: 'clamp(10px, 3vw, 12px)', 
+                          fontSize: 'clamp(10px, 3vw, 12px)',
                           fontFamily: 'Geist Mono, monospace',
-                          letterSpacing: '0.02em', 
-                          color: 'rgba(255,255,255,0.5)', 
+                          letterSpacing: '0.02em',
+                          color: 'rgba(255,255,255,0.5)',
                           whiteSpace: 'nowrap',
-                          lineHeight: 1.3,
-                          flexShrink: 0,
+                          lineHeight: 1.3, flexShrink: 0,
                         }}>
                           {project.year}
                         </span>
                       </div>
                       <p style={{
-                        fontSize: 'clamp(10px, 3vw, 12px)', 
+                        fontSize: 'clamp(10px, 3vw, 12px)',
                         color: 'rgba(255,255,255,0.7)',
-                        lineHeight: 1.4, 
+                        lineHeight: 1.4,
                         fontFamily: 'Geist, Inter, system-ui, sans-serif',
-                        margin: 0,
-                        marginTop: '0.25rem',
+                        margin: 0, marginTop: '0.25rem',
                       }}>
                         {project.desc}
                       </p>
@@ -277,7 +280,6 @@ export default function Projects() {
             ))}
           </div>
 
-          {/* Empty state */}
           {filteredProjects.length === 0 && (
             <div style={{
               textAlign: 'center', padding: '4rem',

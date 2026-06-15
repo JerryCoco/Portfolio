@@ -10,16 +10,19 @@ const featuredWork = [
     name: 'RemedyCare HARS UI',
     desc: 'Health Administration & Records System',
     slug: 'remedycare-hars',
+    image: '/images/hars/hero.webp',
   },
   {
     name: 'Attendance App UI',
     desc: 'Smart attendance tracking system design',
     slug: 'attendance-app',
+    image: '/images/rollcall/hero.webp',
   },
   {
     name: 'Hostel App UI',
     desc: 'Hostel management & booking experience',
     slug: 'hostel-app',
+    image: '/images/hostel/hero.webp',
   },
 ];
 
@@ -258,17 +261,35 @@ export default function Home() {
           <div className="home-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
             {featuredWork.map((item, idx) => (
               <Link key={idx} href={`/projects/${item.slug}`} style={{ textDecoration: 'none' }}>
-                <div
+             <div
+                style={{
+                  position: 'relative', borderRadius: '1rem', overflow: 'hidden',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                  cursor: 'pointer', backgroundColor: '#141414', aspectRatio: '3 / 4',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                {/* ── Image ── */}
+                <img
+                  src={item.image}
+                  alt={item.name}
                   style={{
-                    position: 'relative', borderRadius: '1rem', overflow: 'hidden',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                    cursor: 'pointer', backgroundColor: '#141414', aspectRatio: '3 / 4',
+                    position: 'absolute', inset: 0,
+                    width: '100%', height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: item.slug === 'remedycare-hars' ? 'top center' : 'center',
+                    zIndex: 0,
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
-                >
-                  <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', padding: '1.5rem' }}>
+                />
+                {/* ── Gradient so text stays readable ── */}
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85) 100%)',
+                  zIndex: 1,
+                }} />                   
+                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', padding: '1.5rem' }}>
                     <div style={{ flex: 1 }} />
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
