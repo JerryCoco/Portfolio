@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 
 type EntryType = 'Official' | 'Private' | 'Visitor' | 'Other';
 
@@ -91,13 +93,18 @@ export default function Guestbook() {
   const { placeholder, stop, restart } = useTypewriter(TYPEWRITER_PHRASES);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('guestbook_entries');
-      if (saved) setEntries(JSON.parse(saved));
-    } catch {}
+    const q = query(collection(db, 'entries'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const loaded = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Entry[];
+      setEntries(loaded);
+    });
+    return () => unsubscribe();
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!name.trim() || !message.trim()) { setError('Please fill in both fields.'); return; }
     if (name.length > 25) { setError('Name too long (max 25).'); return; }
     if (message.length > 60) { setError('Message too long (max 60).'); return; }
@@ -106,21 +113,19 @@ export default function Guestbook() {
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const dateStr = `${months[now.getMonth()]} ${now.getDate()}, ${String(now.getFullYear()).slice(2)}`;
 
-    const newEntry: Entry = {
-      id: `entry-${Date.now()}`,
-      name: name.trim(),
-      message: message.trim(),
-      type,
-      date: dateStr,
-    };
-
     try {
-      const saved = localStorage.getItem('guestbook_entries');
-      const existing: Entry[] = saved ? JSON.parse(saved) : [];
-      const updated = [newEntry, ...existing];
-      localStorage.setItem('guestbook_entries', JSON.stringify(updated));
-      setEntries(updated);
-    } catch {}
+      await addDoc(collection(db, 'entries'), {
+        name: name.trim(),
+        message: message.trim(),
+        type,
+        date: dateStr,
+        createdAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error('Failed to submit entry:', err);
+      setError('Something went wrong. Try again.');
+      return;
+    }
 
     setName(''); setMessage(''); setType('Visitor'); setError('');
     setSubmitted(true);
