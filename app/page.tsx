@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useRef, MouseEvent, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { posts } from '@/lib/blog';  
+import { posts } from '@/lib/blog';
 
 const featuredWork = [
   {
@@ -392,7 +392,9 @@ export default function Home() {
               ))}
             </div>
           </div>
+          {/* ── end Blog section ── */}
         </div>
+        {/* ── end #featured-work ── */}
       </div>
     </>
   );

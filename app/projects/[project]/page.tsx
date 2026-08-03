@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // MoreProjectCard component with cursor-following pill
 function MoreProjectCard({ p }: { p: { name: string; desc: string; heroImage: string } }) {
@@ -319,6 +319,54 @@ export default function ProjectPage() {
   const prevImage = () => setLightbox(prev => prev ? { ...prev, index: Math.max(0, prev.index - 1), zoom: 1 } : null);
   const nextImage = () => setLightbox(prev => prev ? { ...prev, index: Math.min(prev.images.length - 1, prev.index + 1), zoom: 1 } : null);
 
+  // Double-click to zoom (desktop)
+  const handleImageDoubleClick = () => {
+    setLightbox(prev => prev ? { ...prev, zoom: prev.zoom > 1 ? 1 : 2.5 } : null);
+  };
+
+  // Scroll-wheel zoom (desktop) — smooth, up to 3x
+  const handleImageWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLightbox(prev => {
+      if (!prev) return null;
+      const delta = -e.deltaY * 0.0015;
+      const newZoom = Math.min(3, Math.max(1, prev.zoom + delta));
+      return { ...prev, zoom: newZoom };
+    });
+  };
+
+  // Pinch-to-zoom (mobile)
+  const pinchStartDistance = useRef<number | null>(null);
+  const pinchStartZoom = useRef(1);
+
+  const getTouchDistance = (touches: React.TouchList) => {
+    const [a, b] = [touches[0], touches[1]];
+    return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      pinchStartDistance.current = getTouchDistance(e.touches);
+      pinchStartZoom.current = lightbox?.zoom ?? 1;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && pinchStartDistance.current) {
+      const newDistance = getTouchDistance(e.touches);
+      const scale = newDistance / pinchStartDistance.current;
+      const newZoom = Math.min(3, Math.max(1, pinchStartZoom.current * scale));
+      setLightbox(prev => prev ? { ...prev, zoom: newZoom } : null);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) {
+      pinchStartDistance.current = null;
+    }
+  };
+
   // Keyboard navigation for lightbox
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -561,6 +609,7 @@ export default function ProjectPage() {
             position: 'fixed', inset: 0, zIndex: 9999,
             background: 'rgba(0,0,0,0.95)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 'clamp(1.5rem, 5vw, 3.5rem)',
           }}
         >
           {/* Counter */}
@@ -568,45 +617,140 @@ export default function ProjectPage() {
             {lightbox.index + 1} / {lightbox.images.length}
           </div>
 
-          {/* Close */}
-          <button onClick={closeLightbox} style={{ position: 'absolute', top: 20, right: 28, background: 'none', border: 'none', color: 'white', fontSize: 24, cursor: 'pointer' }}>✕</button>
-
-          {/* Prev */}
-          {lightbox.index > 0 && (
-            <button onClick={e => { e.stopPropagation(); prevImage(); }} style={{ position: 'absolute', left: 24, background: 'none', border: 'none', color: 'white', fontSize: 28, cursor: 'pointer', padding: '1rem' }}>‹</button>
-          )}
-
-          {/* Zoom buttons */}
-          <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '0.5rem', zIndex: 10 }}>
-            <button
-              onClick={e => { e.stopPropagation(); setLightbox(prev => prev ? { ...prev, zoom: Math.max(1, prev.zoom - 0.25) } : null); }}
-              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: 36, height: 36, borderRadius: '50%', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >−</button>
-            <button
-              onClick={e => { e.stopPropagation(); setLightbox(prev => prev ? { ...prev, zoom: Math.min(3, prev.zoom + 0.25) } : null); }}
-              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: 36, height: 36, borderRadius: '50%', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >+</button>
-          </div>
-
-          {/* Image */}
-          <img
-            src={lightbox.images[lightbox.index]}
+          {/* Image + nav pill column, matches GalleryLightbox structure */}
+          <div
             onClick={e => e.stopPropagation()}
             style={{
-              maxWidth: '85vw', maxHeight: '90vh',
-              objectFit: 'contain', borderRadius: 8,
-              transform: `scale(${lightbox.zoom})`,
-              transition: 'transform 0.2s ease',
-              cursor: lightbox.zoom > 1 ? 'grab' : 'default',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1.25rem',
+              maxWidth: '90vw',
+              maxHeight: '100%',
             }}
-          />
+          >
+            {/* Image wrapper — close button anchors here */}
+            <div style={{ position: 'relative', maxWidth: '100%' }}>
+              <img
+                src={lightbox.images[lightbox.index]}
+                onDoubleClick={e => { e.stopPropagation(); handleImageDoubleClick(); }}
+                onWheel={handleImageWheel}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                style={{
+                  maxWidth: '85vw', maxHeight: '76vh',
+                  objectFit: 'contain', borderRadius: 16,
+                  display: 'block',
+                  boxShadow: '0 30px 80px rgba(0,0,0,0.5)',
+                  transform: `scale(${lightbox.zoom})`,
+                  transition: pinchStartDistance.current ? 'none' : 'transform 0.15s ease-out',
+                  cursor: lightbox.zoom > 1 ? 'zoom-out' : 'zoom-in',
+                  touchAction: 'none',
+                }}
+              />
 
-          {/* Next */}
-          {lightbox.index < lightbox.images.length - 1 && (
-            <button onClick={e => { e.stopPropagation(); nextImage(); }} style={{ position: 'absolute', right: 24, background: 'none', border: 'none', color: 'white', fontSize: 28, cursor: 'pointer', padding: '1rem' }}>›</button>
-          )}
+              {/* Close — swoosh accent circle */}
+              <button
+                onClick={e => { e.stopPropagation(); closeLightbox(); }}
+                aria-label="Close preview"
+                style={{
+                  position: 'absolute', top: -16, right: -16,
+                  width: 0, height: 0, border: 'none', background: 'none',
+                  cursor: 'pointer', zIndex: 3,
+                }}
+              >
+                <svg width="52" height="52" viewBox="0 0 52 52" style={{ overflow: 'visible' }}>
+                  <path
+                    d="M22,34 C10,34 4,24 10,15 C4,20 2,30 8,38 C12,43 20,45 27,42 Z"
+                    fill="#111"
+                    opacity="0.9"
+                  />
+                  <circle cx="26" cy="24" r="17" fill="#fff" stroke="#111" strokeWidth="1.5" />
+                  <path d="M20 18l12 12M32 18L20 30" stroke="#111" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Nav pill — prev/next, sits below the image, same size/hover as GalleryLightbox */}
+            <div
+              onClick={e => e.stopPropagation()}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                background: 'rgba(24,24,24,0.92)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                borderRadius: 999,
+                padding: 6,
+                boxShadow: '0 10px 28px rgba(0,0,0,0.35)',
+              }}
+            >
+              <LightboxNavButton onClick={prevImage} disabled={lightbox.index === 0} label="Previous">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </LightboxNavButton>
+
+              <LightboxNavButton onClick={nextImage} disabled={lightbox.index === lightbox.images.length - 1} label="Next">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </LightboxNavButton>
+            </div>
+          </div>
         </div>
       )}
     </>
+  );
+}
+
+function LightboxNavButton({
+  onClick,
+  disabled,
+  label,
+  children,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={e => {
+        e.stopPropagation();
+        onClick();
+      }}
+      disabled={disabled}
+      aria-label={label}
+      style={{
+        width: 34,
+        height: 34,
+        borderRadius: '50%',
+        border: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: disabled ? 'default' : 'pointer',
+        background: 'transparent',
+        color: disabled ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.85)',
+        transition: 'background 0.15s ease, color 0.15s ease',
+        WebkitTapHighlightColor: 'transparent',
+        outline: 'none',
+      }}
+      onMouseEnter={e => {
+        if (!disabled) e.currentTarget.style.background = 'rgba(255,255,255,0.12)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background = 'transparent';
+      }}
+      onTouchEnd={e => {
+        e.currentTarget.style.background = 'transparent';
+      }}
+    >
+      {children}
+    </button>
   );
 }

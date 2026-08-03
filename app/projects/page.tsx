@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { MasonryGallery } from '@/components/MasonryGallery';
+import { sideProjectImages } from '@/lib/side-projects';
 
 const allProjects = [
   {
@@ -292,6 +294,22 @@ export default function Projects() {
               No projects found in this category.
             </div>
           )}
+
+          {/* ── Side Projects Gallery ─────────────────────────────────── */}
+          <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <h2 style={{
+              fontSize: 'clamp(20px, 4vw, 28px)',
+              fontWeight: 500,
+              letterSpacing: '-0.01em',
+              color: 'rgba(255,255,255,0.92)',
+              fontFamily: 'Instrument Serif, serif',
+              marginBottom: '1.5rem',
+            }}>
+              Side Projects
+            </h2>
+
+            <MasonryGallery images={sideProjectImages} columns={3} gap={1} />
+          </div>
 
         </div>
       </div>
