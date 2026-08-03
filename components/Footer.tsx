@@ -140,7 +140,7 @@ export default function Footer() {
             </div>
             <div style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Shipped</div>
-              <div style={valueStyle}>June 2026</div>
+              <div style={valueStyle}>August 2026</div>
             </div>
             <div style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Local</div>
