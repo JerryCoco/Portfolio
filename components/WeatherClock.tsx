@@ -46,7 +46,7 @@ export function WeatherClock() {
   const now = useAccraTime();
 
   useEffect(() => {
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=${encodeURIComponent(TIMEZONE)}&temperature_unit=fahrenheit`)
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=${encodeURIComponent(TIMEZONE)}`)
       .then((res) => {
         if (!res.ok) throw new Error('bad response');
         return res.json();
@@ -76,67 +76,66 @@ export function WeatherClock() {
 
   const condition = weather ? describeWeather(weather.code) : null;
 
-  const cardStyle: React.CSSProperties = {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: '1rem',
-    padding: '1.5rem',
-  };
-
   return (
-    <div className="weather-clock-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+    <div
+      style={{
+        background: 'linear-gradient(160deg, #4f7fe0 0%, #6b8fe8 45%, #3a5fc4 100%)',
+        borderRadius: '1rem',
+        padding: '1.25rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+      }}
+    >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Doto:wght@700&display=swap');
         .wc-led { font-family: 'Doto', 'Geist Mono', monospace; font-weight: 700; }
-        @media (max-width: 640px) {
-          .weather-clock-grid { grid-template-columns: 1fr !important; }
-        }
       `}</style>
 
-      {/* Weather */}
-      <div style={cardStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: '1rem' }}>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>📍</span>
-          <span style={{
-            fontSize: 12, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.5)', fontFamily: 'Geist, Inter, sans-serif',
-          }}>
-            {LOCATION_LABEL}
-          </span>
-        </div>
-
-        {error ? (
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontFamily: 'Geist, Inter, sans-serif' }}>
-            Weather unavailable.
-          </span>
-        ) : !weather ? (
-          <>
-            <Skeleton width={80} height={36} borderRadius={6} />
-            <div style={{ marginTop: 8 }}><Skeleton width={140} height={13} borderRadius={4} /></div>
-          </>
-        ) : (
-          <>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-              <span className="wc-led" style={{ fontSize: 36, color: 'white' }}>{weather.temp}°F</span>
-              <span style={{ fontSize: 18 }}>{condition?.icon}</span>
-            </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', fontFamily: 'Geist, Inter, sans-serif', marginTop: 4 }}>
-              {condition?.label} · H{weather.high}° L{weather.low}°
-            </div>
-          </>
-        )}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 13 }}>📍</span>
+        <span style={{
+          fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)',
+          fontFamily: 'Geist, Inter, sans-serif',
+        }}>
+          {LOCATION_LABEL}
+        </span>
       </div>
 
-      {/* Clock */}
-      <div style={cardStyle}>
-        <div style={{
-          fontSize: 12, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.5)', fontFamily: 'Geist, Inter, sans-serif', marginBottom: '1rem',
-        }}>
-          {dateString ?? <Skeleton width={90} height={12} borderRadius={4} />} · GMT
+      {error ? (
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontFamily: 'Geist, Inter, sans-serif' }}>
+          Weather unavailable.
+        </span>
+      ) : !weather ? (
+        <>
+          <Skeleton width={90} height={40} borderRadius={6} style={{ background: 'rgba(255,255,255,0.15)' }} />
+          <div style={{ marginTop: -6 }}><Skeleton width={150} height={13} borderRadius={4} style={{ background: 'rgba(255,255,255,0.15)' }} /></div>
+        </>
+      ) : (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <span className="wc-led" style={{ fontSize: 40, color: 'white' }}>{weather.temp}°C</span>
+            <span style={{ fontSize: 18 }}>{condition?.icon}</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: 'white', fontFamily: 'Geist, Inter, sans-serif' }}>
+              {condition?.label}
+            </span>
+          </div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', fontFamily: 'Geist, Inter, sans-serif', marginTop: 2 }}>
+            H{weather.high}° L{weather.low}°
+          </div>
         </div>
-        <div className="wc-led" style={{ fontSize: 32, color: '#7dd3fc', letterSpacing: '0.05em' }}>
-          {timeString ?? <Skeleton width={130} height={32} borderRadius={6} />}
+      )}
+
+      {/* Nested clock panel */}
+      <div style={{ background: 'rgba(10,10,10,0.55)', borderRadius: 12, padding: '0.85rem 1rem' }}>
+        <div style={{
+          fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.5)', fontFamily: 'Geist, Inter, sans-serif', marginBottom: 6,
+        }}>
+          {dateString ?? <Skeleton width={90} height={11} borderRadius={4} />} · GMT
+        </div>
+        <div className="wc-led" style={{ fontSize: 28, color: '#7dd3fc', letterSpacing: '0.05em' }}>
+          {timeString ?? <Skeleton width={130} height={28} borderRadius={6} />}
         </div>
       </div>
     </div>

@@ -77,7 +77,7 @@ export function CurrentlyBuilding() {
 
   return (
     <div style={{
-      background: '#141414', border: '1px solid rgba(255,255,255,0.08)',
+      background: '#141414',
       borderRadius: '1rem', overflow: 'hidden',
     }}>
       <style>{`

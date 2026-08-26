@@ -73,7 +73,7 @@ export function GitHubActivity() {
   if (error) {
     return (
       <div style={{
-        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(255,255,255,0.05)',
         borderRadius: '1rem', padding: '1.5rem', display: 'flex', alignItems: 'center',
         justifyContent: 'center', height: 160,
       }}>
@@ -125,8 +125,7 @@ export function GitHubActivity() {
   return (
     <div
       style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(255,255,255,0.05)',
         borderRadius: '1rem',
         padding: '1.5rem',
       }}
