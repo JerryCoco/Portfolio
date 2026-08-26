@@ -52,16 +52,37 @@ export function GitHubActivity() {
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch('/api/github-activity')
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    fetch('/api/github-activity', { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error('bad response');
         return res.json();
       })
       .then((data) => setDays(data.days))
-      .catch(() => setError(true));
+      .catch(() => setError(true))
+      .finally(() => clearTimeout(timeout));
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
-  if (error) return null;
+  if (error) {
+    return (
+      <div style={{
+        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: '1rem', padding: '1.5rem', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', height: 160,
+      }}>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontFamily: 'Geist, Inter, sans-serif' }}>
+          GitHub activity is unavailable right now.
+        </span>
+      </div>
+    );
+  }
 
   const cutoff = new Date();
   cutoff.setMonth(cutoff.getMonth() - MONTHS_BACK);

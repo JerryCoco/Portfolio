@@ -13,13 +13,18 @@ const PAGES = [
   { label: 'Vendors', path: '/vendors/vendors.html' },
 ];
 
+// Pair pages up for the two-panel (large + small) layout, matching the
+// reference's asymmetric hero + companion tile pairing.
+const SLIDES: (typeof PAGES)[] = [];
+for (let i = 0; i < PAGES.length; i += 2) SLIDES.push(PAGES.slice(i, i + 2));
+
 const AUTO_ADVANCE_MS = 5000;
 const MARQUEE_TEXT = PAGES.map((p) => p.label.toUpperCase()).join('  ✦  ') + '  ✦  ';
 
 export function CurrentlyBuilding() {
   const [active, setActive] = useState(0);
   const [loaded, setLoaded] = useState<Record<string, boolean>>({});
-  const [openPage, setOpenPage] = useState<number | null>(null);
+  const [openPage, setOpenPage] = useState<{ path: string; label: string } | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -32,7 +37,7 @@ export function CurrentlyBuilding() {
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setActive((i) => {
-        const next = (i + 1) % PAGES.length;
+        const next = (i + 1) % SLIDES.length;
         scrollToIndex(next);
         return next;
       });
@@ -46,7 +51,7 @@ export function CurrentlyBuilding() {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setActive((i) => {
-        const next = (i + 1) % PAGES.length;
+        const next = (i + 1) % SLIDES.length;
         scrollToIndex(next);
         return next;
       });
@@ -98,8 +103,15 @@ export function CurrentlyBuilding() {
         }
         .cb-track::-webkit-scrollbar { display: none; }
         .cb-track { scrollbar-width: none; -ms-overflow-style: none; }
-        .cb-tile { transition: transform 0.2s ease; }
-        .cb-tile:hover { transform: scale(1.015); }
+        .cb-panel {
+          transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s ease;
+          position: relative;
+        }
+        .cb-panel:hover {
+          transform: scale(1.04);
+          z-index: 2;
+          box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+        }
       `}</style>
 
       {/* LED-style marquee header */}
@@ -114,7 +126,7 @@ export function CurrentlyBuilding() {
         </div>
       </div>
 
-      {/* Freely swipeable track — all pages in sequence, native scroll-snap */}
+      {/* Freely swipeable track — each slide is a large + small panel pair */}
       <div
         ref={trackRef}
         onScroll={handleScroll}
@@ -126,62 +138,74 @@ export function CurrentlyBuilding() {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {PAGES.map((page, i) => (
+        {SLIDES.map((slide, si) => (
           <div
-            key={page.path}
-            className="cb-tile"
-            onClick={() => setOpenPage(i)}
+            key={si}
             style={{
               flex: '0 0 100%',
               scrollSnapAlign: 'start',
-              position: 'relative',
+              display: 'grid',
+              gridTemplateColumns: slide.length === 2 ? '3fr 1fr' : '1fr',
+              gap: 8,
               aspectRatio: '16 / 9',
-              background: '#0d0d0d',
-              cursor: 'pointer',
               padding: 12,
             }}
           >
-            <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: 8, overflow: 'hidden' }}>
-              {!loaded[page.path] && (
-                <div style={{ position: 'absolute', inset: 0 }}>
-                  <Skeleton width="100%" height="100%" borderRadius={8} />
-                </div>
-              )}
-              <iframe
-                src={`${BASE_URL}${page.path}`}
-                title={`${page.label} preview`}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                tabIndex={-1}
-                onLoad={() => markLoaded(page.path)}
-                style={{
-                  position: 'absolute', top: 0, left: 0,
-                  width: '250%', height: '250%',
-                  transform: 'scale(0.4)', transformOrigin: 'top left',
-                  border: 'none', pointerEvents: 'none',
-                  opacity: loaded[page.path] ? 1 : 0,
-                  transition: 'opacity 0.3s ease',
-                }}
-              />
-              <span style={{
-                position: 'absolute', bottom: 6, left: 8,
-                fontSize: 10, color: 'rgba(255,255,255,0.6)',
-                fontFamily: 'Geist Mono, monospace', letterSpacing: '0.04em',
-                textTransform: 'uppercase', background: 'rgba(0,0,0,0.55)',
-                padding: '2px 6px', borderRadius: 4, pointerEvents: 'none',
-              }}>
-                {page.label}
-              </span>
-            </div>
+            {slide.map((page) => {
+              // Only load iframes for the active slide + its neighbors —
+              // loading all 5 at once fights for bandwidth and makes
+              // everything feel slow.
+              const shouldLoad = Math.abs(si - active) <= 1;
+              return (
+              <div
+                key={page.path}
+                className="cb-panel"
+                onClick={() => setOpenPage(page)}
+                style={{ borderRadius: 8, overflow: 'hidden', background: '#0d0d0d', cursor: 'pointer' }}
+              >
+                {!loaded[page.path] && (
+                  <div style={{ position: 'absolute', inset: 0 }}>
+                    <Skeleton width="100%" height="100%" borderRadius={8} />
+                  </div>
+                )}
+                {shouldLoad && (
+                  <iframe
+                    src={`${BASE_URL}${page.path}`}
+                    title={`${page.label} preview`}
+                    tabIndex={-1}
+                    onLoad={() => markLoaded(page.path)}
+                    style={{
+                      position: 'absolute', top: 0, left: 0,
+                      width: '250%', height: '250%',
+                      transform: 'scale(0.4)', transformOrigin: 'top left',
+                      border: 'none', pointerEvents: 'none',
+                      opacity: loaded[page.path] ? 1 : 0,
+                      transition: 'opacity 0.3s ease',
+                    }}
+                  />
+                )}
+                <span style={{
+                  position: 'absolute', bottom: 6, left: 8,
+                  fontSize: 10, color: 'rgba(255,255,255,0.6)',
+                  fontFamily: 'Geist Mono, monospace', letterSpacing: '0.04em',
+                  textTransform: 'uppercase', background: 'rgba(0,0,0,0.55)',
+                  padding: '2px 6px', borderRadius: 4, pointerEvents: 'none',
+                }}>
+                  {page.label}
+                </span>
+              </div>
+              );
+            })}
           </div>
         ))}
       </div>
 
       {/* Pagination dots — reflect swipe position, also clickable */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '12px 0' }}>
-        {PAGES.map((page, i) => (
+        {SLIDES.map((_, i) => (
           <button
-            key={page.path}
-            aria-label={`Show ${page.label}`}
+            key={i}
+            aria-label={`Show slide ${i + 1}`}
             onClick={() => goTo(i)}
             style={{
               width: active === i ? 16 : 6, height: 6, borderRadius: 999,
@@ -193,7 +217,7 @@ export function CurrentlyBuilding() {
         ))}
       </div>
 
-      {openPage !== null && (
+      {openPage && (
         <div
           onClick={() => setOpenPage(null)}
           style={{
@@ -208,25 +232,28 @@ export function CurrentlyBuilding() {
             onClick={(e) => e.stopPropagation()}
             style={{
               width: 'min(1000px, 100%)',
-              aspectRatio: '16 / 9.5',
+              height: 'min(650px, 85vh)',
               background: '#0d0d0d',
               borderRadius: 16,
               overflow: 'hidden',
               border: '1px solid rgba(255,255,255,0.1)',
               boxShadow: '0 30px 80px rgba(0,0,0,0.5)',
               position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)',
+              flexShrink: 0,
             }}>
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontFamily: 'Geist Mono, monospace' }}>
-                {PAGES[openPage].label}
+                {openPage.label}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                 <a
-                  href={`${BASE_URL}${PAGES[openPage].path}`}
+                  href={`${BASE_URL}${openPage.path}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontFamily: 'Geist Mono, monospace' }}
@@ -245,9 +272,9 @@ export function CurrentlyBuilding() {
               </div>
             </div>
             <iframe
-              src={`${BASE_URL}${PAGES[openPage].path}`}
-              title={`${PAGES[openPage].label} full preview`}
-              style={{ width: '100%', height: 'calc(100% - 41px)', border: 'none' }}
+              src={`${BASE_URL}${openPage.path}`}
+              title={`${openPage.label} full preview`}
+              style={{ width: '100%', flex: 1, border: 'none' }}
             />
           </div>
         </div>

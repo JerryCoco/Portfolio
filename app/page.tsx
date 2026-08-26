@@ -7,6 +7,7 @@ import { posts } from '@/lib/blog';
 import { GitHubActivity } from '@/components/GitHubActivity';
 import { SpotifyPlaylist } from '@/components/SpotifyPlaylist';
 import { CurrentlyBuilding } from '@/components/CurrentlyBuilding';
+import { WeatherClock } from '@/components/WeatherClock';
 import { Skeleton } from '@/components/Skeleton';
 import { FirstVisitBanner } from '@/components/FirstVisitBanner';
 
@@ -344,7 +345,14 @@ export default function Home() {
                 <img
                   src={item.image}
                   alt={item.name}
+                  ref={(el) => {
+                    // Server-rendered <img> can finish loading (from cache
+                    // or just being fast) before React hydrates and attaches
+                    // onLoad, silently missing the event — catch that here.
+                    if (el?.complete) setLoadedImages((prev) => ({ ...prev, [item.slug]: true }));
+                  }}
                   onLoad={() => setLoadedImages((prev) => ({ ...prev, [item.slug]: true }))}
+                  onError={() => setLoadedImages((prev) => ({ ...prev, [item.slug]: true }))}
                   style={{
                     position: 'absolute', inset: 0,
                     width: '100%', height: '100%',
@@ -501,6 +509,16 @@ export default function Home() {
                 <SpotifyPlaylist />
               </motion.div>
             </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.5, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+              style={{ marginTop: '1.5rem' }}
+            >
+              <WeatherClock />
+            </motion.div>
           </div>
           {/* ── end Activity ── */}
         </div>

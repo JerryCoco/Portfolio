@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { VisitorCounter } from './VisitorCounter';
 
 const bibleVerses = [
   { ref: "Jeremiah 29:11", text: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.", url: "https://www.biblegateway.com/passage/?search=Jeremiah+29%3A11" },
@@ -132,7 +133,10 @@ export default function Footer() {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>— {quote.author}</div>
             </div>
 
-            <div style={{ padding: '1.75rem 2rem' }} />
+            <div style={{ padding: '1.75rem 2rem' }}>
+              <div style={labelStyle}>Visitor</div>
+              <div style={monoStyle}><VisitorCounter /></div>
+            </div>
 
             <div style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Viewport</div>

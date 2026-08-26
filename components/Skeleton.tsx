@@ -28,7 +28,7 @@ export function Skeleton({ width = '100%', height = 16, borderRadius = 8, style,
           0%   { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
-        .skeleton-shimmer-el { animation: skeleton-shimmer 1.6s ease-in-out infinite; }
+        .skeleton-shimmer-el { animation: skeleton-shimmer 1.1s ease-in-out infinite; }
         @media (prefers-reduced-motion: reduce) {
           .skeleton-shimmer-el { animation: none; opacity: 0.6; }
         }
