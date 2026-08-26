@@ -4,6 +4,11 @@ import Link from 'next/link';
 import { useState, useRef, MouseEvent, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { posts } from '@/lib/blog';
+import { GitHubActivity } from '@/components/GitHubActivity';
+import { SpotifyPlaylist } from '@/components/SpotifyPlaylist';
+import { CurrentlyBuilding } from '@/components/CurrentlyBuilding';
+import { Skeleton } from '@/components/Skeleton';
+import { FirstVisitBanner } from '@/components/FirstVisitBanner';
 
 const featuredWork = [
   {
@@ -31,6 +36,7 @@ export default function Home() {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLAnchorElement>(null);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   const blogContainerRef = useRef<HTMLDivElement>(null);
   const blogRowRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -93,6 +99,26 @@ export default function Home() {
           0%   { transform: scale(0) rotate(90deg); opacity: 0; }
           100% { transform: scale(1) rotate(0deg);  opacity: 1; }
         }
+        @keyframes shimmerSweep {
+          0%   { background-position: -200% 0; }
+          18%  { background-position: 200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .shimmer-text {
+          background-image: linear-gradient(
+            90deg,
+            rgba(255,255,255,0.35) 0%,
+            rgba(255,255,255,0.35) 40%,
+            rgba(255,255,255,0.95) 50%,
+            rgba(255,255,255,0.35) 60%,
+            rgba(255,255,255,0.35) 100%
+          );
+          background-size: 200% 100%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: shimmerSweep 5.5s ease-in-out infinite;
+        }
         @keyframes textChange {
           0%   { opacity: 0; transform: translateX(-5px); }
           100% { opacity: 1; transform: translateX(0);    }
@@ -131,9 +157,20 @@ export default function Home() {
           }
           .home-cards-grid::-webkit-scrollbar { display: none !important; }
         }
+
+        @media (max-width: 640px) {
+          .activity-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', position: 'relative' }}>
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', position: 'relative' }}
+      >
+        <FirstVisitBanner />
+
         {/* ── Hero ────────────────────────────────────────────────────── */}
         <div id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
           <div style={{ maxWidth: 1000, margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 0' }}>
@@ -245,20 +282,47 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── Featured Work + Blog ─────────────────────────────────────── */}
+        {/* ── Currently Building + Featured Work + Blog ─────────────────── */}
         <div id="featured-work" style={{ padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 4rem', maxWidth: 1000, margin: '0 auto' }}>
 
+          {/* ── Currently Building ──────────────────────────────────────── */}
+          <div id="currently-building" style={{ marginBottom: '4rem' }}>
+            <div className="shimmer-text" style={{
+              fontSize: '13px', fontWeight: 600, letterSpacing: '0.1em',
+              textTransform: 'uppercase', marginBottom: '1rem',
+              fontFamily: 'Geist, Inter, sans-serif',
+            }}>
+              01. Currently Building
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <CurrentlyBuilding />
+            </motion.div>
+          </div>
+
           {/* Section label — matches about page format */}
-          <div style={{
+          <div id="featured-work-cards" style={{
             fontSize: '13px', fontWeight: 600, letterSpacing: '0.1em',
             textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
             marginBottom: '1rem', fontFamily: 'Geist, Inter, sans-serif',
           }}>
-            01. Featured Work
+            02. Featured Work
           </div>
 
           {/* 2-column project cards */}
-          <div className="home-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+          <motion.div
+            className="home-cards-grid"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}
+          >
             {featuredWork.map((item, idx) => (
               <Link key={idx} href={`/projects/${item.slug}`} style={{ textDecoration: 'none' }}>
              <div
@@ -272,15 +336,23 @@ export default function Home() {
                 onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
               >
                 {/* ── Image ── */}
+                {!loadedImages[item.slug] && (
+                  <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+                    <Skeleton width="100%" height="100%" borderRadius={0} />
+                  </div>
+                )}
                 <img
                   src={item.image}
                   alt={item.name}
+                  onLoad={() => setLoadedImages((prev) => ({ ...prev, [item.slug]: true }))}
                   style={{
                     position: 'absolute', inset: 0,
                     width: '100%', height: '100%',
                     objectFit: 'cover',
                     objectPosition: item.slug === 'remedycare-hars' ? 'top center' : 'center',
                     zIndex: 0,
+                    opacity: loadedImages[item.slug] ? 1 : 0,
+                    transition: 'opacity 0.3s ease',
                   }}
                 />
                 {/* ── Gradient so text stays readable ── */}
@@ -308,16 +380,23 @@ export default function Home() {
                 </div>
               </Link>
             ))}
-          </div>
+          </motion.div>
 
           {/* ── Blog section ──────────────────────────────────────────── */}
-          <div id="blog" style={{ marginTop: '4rem' }}>
+          <motion.div
+            id="blog"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            style={{ marginTop: '4rem' }}
+          >
             <div style={{
               fontSize: '13px', fontWeight: 600, letterSpacing: '0.1em',
               textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
               marginBottom: '20px', fontFamily: 'Geist, Inter, sans-serif',
             }}>
-              02. Blog
+              03. Blog
             </div>
 
             <div ref={blogContainerRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
@@ -391,11 +470,42 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
           {/* ── end Blog section ── */}
+
+          {/* ── Activity ──────────────────────────────────────────────── */}
+          <div id="activity" style={{ marginTop: '4rem' }}>
+            <div style={{
+              fontSize: '13px', fontWeight: 600, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
+              marginBottom: '1rem', fontFamily: 'Geist, Inter, sans-serif',
+            }}>
+              04. Activity
+            </div>
+
+            <div className="activity-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <GitHubActivity />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <SpotifyPlaylist />
+              </motion.div>
+            </div>
+          </div>
+          {/* ── end Activity ── */}
         </div>
         {/* ── end #featured-work ── */}
-      </div>
+      </motion.div>
     </>
   );
 }
