@@ -32,12 +32,49 @@ const featuredWork = [
   },
 ];
 
+/** A featured-work image with its own skeleton, safely handling images
+ *  that finish loading (from cache) before React hydrates and attaches
+ *  onLoad — checked once on mount via a stable ref, no re-render loop risk. */
+function FeaturedImage({ src, alt, objectPosition }: { src: string; alt: string; objectPosition: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (imgRef.current?.complete) setLoaded(true);
+  }, []);
+
+  return (
+    <>
+      {!loaded && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+          <Skeleton width="100%" height="100%" borderRadius={0} />
+        </div>
+      )}
+      <img
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          objectFit: 'cover',
+          objectPosition,
+          zIndex: 0,
+          opacity: loaded ? 1 : 0,
+          transition: 'opacity 0.3s ease',
+        }}
+      />
+    </>
+  );
+}
+
 export default function Home() {
   const [copied, setCopied] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLAnchorElement>(null);
-  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   const blogContainerRef = useRef<HTMLDivElement>(null);
   const blogRowRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -337,31 +374,10 @@ export default function Home() {
                 onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
               >
                 {/* ── Image ── */}
-                {!loadedImages[item.slug] && (
-                  <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-                    <Skeleton width="100%" height="100%" borderRadius={0} />
-                  </div>
-                )}
-                <img
+                <FeaturedImage
                   src={item.image}
                   alt={item.name}
-                  ref={(el) => {
-                    // Server-rendered <img> can finish loading (from cache
-                    // or just being fast) before React hydrates and attaches
-                    // onLoad, silently missing the event — catch that here.
-                    if (el?.complete) setLoadedImages((prev) => ({ ...prev, [item.slug]: true }));
-                  }}
-                  onLoad={() => setLoadedImages((prev) => ({ ...prev, [item.slug]: true }))}
-                  onError={() => setLoadedImages((prev) => ({ ...prev, [item.slug]: true }))}
-                  style={{
-                    position: 'absolute', inset: 0,
-                    width: '100%', height: '100%',
-                    objectFit: 'cover',
-                    objectPosition: item.slug === 'remedycare-hars' ? 'top center' : 'center',
-                    zIndex: 0,
-                    opacity: loadedImages[item.slug] ? 1 : 0,
-                    transition: 'opacity 0.3s ease',
-                  }}
+                  objectPosition={item.slug === 'remedycare-hars' ? 'top center' : 'center'}
                 />
                 {/* ── Gradient so text stays readable ── */}
                 <div style={{
