@@ -3,6 +3,7 @@
 import './globals.css';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
+import { FirstVisitBanner } from '@/components/FirstVisitBanner';
 import { EB_Garamond, DM_Mono, Geist } from 'next/font/google';
 import { cn } from "@/lib/utils";
 import useClickSpark from './hooks/useClickSpark';
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={cn(ebGaramond.variable, dmMono.variable, "font-sans", geist.variable)}>
       <body>
+        <FirstVisitBanner />
         <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-6">
           <Nav
             items={navItems}

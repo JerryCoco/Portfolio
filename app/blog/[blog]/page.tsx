@@ -1,41 +1,7 @@
-'use client';
-
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { getPost, posts } from '@/lib/blog';
-import { motion } from 'motion/react';
-
-function ReadingProgress() {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
-      setProgress(Math.min(100, Math.max(0, pct)));
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    };
-  }, []);
-
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 2, zIndex: 60, background: 'rgba(255,255,255,0.06)' }}>
-      <div
-        style={{
-          height: '100%',
-          width: `${progress}%`,
-          background: 'linear-gradient(90deg, rgba(255,255,255,0.5), rgba(255,255,255,0.9))',
-          transition: 'width 0.1s linear',
-        }}
-      />
-    </div>
-  );
-}
+import { ReadingProgress } from '@/components/ReadingProgress';
+import { FadeIn } from '@/components/FadeIn';
 
 function renderMarkdown(md: string): string {
   const lines = md.split('\n');
@@ -84,9 +50,8 @@ function applyInline(line: string): string {
   return line;
 }
 
-export default function BlogPost() {
-  const { blog } = useParams<{ blog: string }>();
-  const router = useRouter();
+export default async function BlogPost({ params }: { params: Promise<{ blog: string }> }) {
+  const { blog } = await params;
   const post = getPost(blog);
 
   const related = post
@@ -174,6 +139,7 @@ export default function BlogPost() {
           align-items: center;
           gap: 6px;
           padding: 0;
+          text-decoration: none;
           transition: color 0.2s;
         }
         .back-btn:hover { color: rgba(255,255,255,0.85); }
@@ -190,6 +156,7 @@ export default function BlogPost() {
         }
 
         .related-card {
+          display: block;
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 14px;
@@ -197,6 +164,7 @@ export default function BlogPost() {
           cursor: pointer;
           flex: 1;
           min-width: 0;
+          text-decoration: none;
           transition: background 0.2s, border-color 0.2s;
         }
         .related-card:hover {
@@ -207,21 +175,16 @@ export default function BlogPost() {
 
       <div style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white' }}>
         <ReadingProgress />
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-          style={{ padding: '28px 2.5rem 6rem', maxWidth: 720, margin: '0 auto' }}
-        >
+        <FadeIn style={{ padding: '28px 2.5rem 6rem', maxWidth: 720, margin: '0 auto' }}>
 
           {/* Back */}
           <div style={{ marginBottom: '2.75rem' }}>
-            <button className="back-btn" onClick={() => router.push('/blog')}>
+            <Link href="/blog" className="back-btn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 12H5M12 5l-7 7 7 7" />
               </svg>
               All posts
-            </button>
+            </Link>
           </div>
 
           {/* Header */}
@@ -306,11 +269,7 @@ export default function BlogPost() {
               </p>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 {related.map((r) => (
-                  <div
-                    key={r.slug}
-                    className="related-card"
-                    onClick={() => router.push(`/blog/${r.slug}`)}
-                  >
+                  <Link key={r.slug} href={`/blog/${r.slug}`} className="related-card">
                     <p style={{
                       fontFamily: 'Instrument Serif, serif',
                       fontSize: '1.05rem',
@@ -337,13 +296,13 @@ export default function BlogPost() {
                         {r.excerpt}
                       </p>
                     )}
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
           )}
 
-        </motion.div>
+        </FadeIn>
       </div>
     </>
   );

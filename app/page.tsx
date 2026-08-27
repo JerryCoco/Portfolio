@@ -9,7 +9,6 @@ import { SpotifyPlaylist } from '@/components/SpotifyPlaylist';
 import { CurrentlyBuilding } from '@/components/CurrentlyBuilding';
 import { WeatherClock } from '@/components/WeatherClock';
 import { Skeleton } from '@/components/Skeleton';
-import { FirstVisitBanner } from '@/components/FirstVisitBanner';
 
 const featuredWork = [
   {
@@ -190,8 +189,6 @@ export default function Home() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ minHeight: '100vh', background: '#0d0d0d', color: 'white', position: 'relative' }}
       >
-        <FirstVisitBanner />
-
         {/* ── Hero ────────────────────────────────────────────────────── */}
         <div id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
           <div style={{ maxWidth: 1000, margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) 0' }}>

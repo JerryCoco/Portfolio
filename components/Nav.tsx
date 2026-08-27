@@ -341,7 +341,7 @@ export default function Nav({
           initial={false}
           animate={{ x: pillTarget.x, y: pillTarget.y, width: pillTarget.width, height: pillTarget.height }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          style={{ position: "absolute", top: 0, left: 0, borderRadius: Math.max(borderRadius - 6, 8) }}
+          style={{ position: "absolute", top: 0, left: 0, borderRadius: 9999 }}
         />
       )}
 
