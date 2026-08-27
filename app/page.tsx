@@ -137,26 +137,6 @@ export default function Home() {
           0%   { transform: scale(0) rotate(90deg); opacity: 0; }
           100% { transform: scale(1) rotate(0deg);  opacity: 1; }
         }
-        @keyframes shimmerSweep {
-          0%   { background-position: -200% 0; }
-          18%  { background-position: 200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        .shimmer-text {
-          background-image: linear-gradient(
-            90deg,
-            rgba(255,255,255,0.35) 0%,
-            rgba(255,255,255,0.35) 40%,
-            rgba(255,255,255,0.95) 50%,
-            rgba(255,255,255,0.35) 60%,
-            rgba(255,255,255,0.35) 100%
-          );
-          background-size: 200% 100%;
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          animation: shimmerSweep 5.5s ease-in-out infinite;
-        }
         @keyframes textChange {
           0%   { opacity: 0; transform: translateX(-5px); }
           100% { opacity: 1; transform: translateX(0);    }
@@ -198,7 +178,6 @@ export default function Home() {
 
         @media (max-width: 640px) {
           .activity-grid { grid-template-columns: 1fr !important; }
-          .weather-clock-wrap { max-width: 100% !important; }
         }
       `}</style>
 
@@ -326,9 +305,9 @@ export default function Home() {
 
           {/* ── Currently Building ──────────────────────────────────────── */}
           <div id="currently-building" style={{ marginBottom: '4rem' }}>
-            <div className="shimmer-text" style={{
+            <div style={{
               fontSize: '13px', fontWeight: 600, letterSpacing: '0.1em',
-              textTransform: 'uppercase', marginBottom: '1rem',
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '1rem',
               fontFamily: 'Geist, Inter, sans-serif',
             }}>
               01. Currently Building
@@ -525,18 +504,15 @@ export default function Home() {
               >
                 <SpotifyPlaylist />
               </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.5, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <WeatherClock />
+              </motion.div>
             </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.5, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
-              className="weather-clock-wrap"
-              style={{ marginTop: '1.5rem', maxWidth: 'calc(50% - 0.75rem)' }}
-            >
-              <WeatherClock />
-            </motion.div>
           </div>
           {/* ── end Activity ── */}
         </div>

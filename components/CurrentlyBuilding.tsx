@@ -71,7 +71,7 @@ export function CurrentlyBuilding() {
             transparent 1px, transparent 3px
           );
         }
-        .led-marquee-track { position: relative; height: 26px; overflow: hidden; }
+        .led-marquee-track { position: relative; height: 38px; overflow: hidden; }
         .led-marquee-inner {
           position: absolute; top: 0; left: 0; white-space: nowrap;
           animation: led-marquee 12s linear infinite;
@@ -91,7 +91,7 @@ export function CurrentlyBuilding() {
         borderBottom: '1px solid rgba(255,255,255,0.08)',
       }}>
         <div className="led-marquee-track">
-          <div className="led-marquee-inner" style={{ fontSize: 22, color: 'white' }}>
+          <div className="led-marquee-inner" style={{ fontSize: 32, color: 'white' }}>
             {MARQUEE_TEXT}{MARQUEE_TEXT}
           </div>
         </div>

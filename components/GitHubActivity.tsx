@@ -53,14 +53,10 @@ export function GitHubActivity() {
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const controller = new AbortController();
-    // Generous timeout: on a freshly-started dev server, Next.js compiles
-    // this route on-demand on the very first hit, which combined with the
-    // GitHub round-trip can genuinely take longer than a normal request.
-    const timeout = setTimeout(() => controller.abort(), 25000);
-
+    let cancelled = false;
     setError(false);
-    fetch('/api/github-activity', { signal: controller.signal, cache: 'no-store' })
+
+    fetch('/api/github-activity', { cache: 'no-store' })
       .then(async (res) => {
         if (!res.ok) {
           const body = await res.text().catch(() => '');
@@ -68,16 +64,16 @@ export function GitHubActivity() {
         }
         return res.json();
       })
-      .then((data) => setDays(data.days))
+      .then((data) => {
+        if (!cancelled) setDays(data.days);
+      })
       .catch((err) => {
         console.error('[GitHubActivity]', err);
-        setError(true);
-      })
-      .finally(() => clearTimeout(timeout));
+        if (!cancelled) setError(true);
+      });
 
     return () => {
-      clearTimeout(timeout);
-      controller.abort();
+      cancelled = true;
     };
   }, [retryKey]);
 
