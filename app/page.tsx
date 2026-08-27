@@ -177,7 +177,10 @@ export default function Home() {
         }
 
         @media (max-width: 640px) {
-          .activity-grid { grid-template-columns: 1fr !important; }
+          .activity-subgrid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .activity-subgrid { gap: 0.75rem !important; }
         }
       `}</style>
 
@@ -487,7 +490,7 @@ export default function Home() {
               04. Activity
             </div>
 
-            <div className="activity-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="activity-grid" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -496,22 +499,26 @@ export default function Home() {
               >
                 <GitHubActivity />
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <SpotifyPlaylist />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.5, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <WeatherClock />
-              </motion.div>
+              <div className="activity-subgrid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <motion.div
+                  style={{ minWidth: 0 }}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-80px' }}
+                  transition={{ duration: 0.5, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <SpotifyPlaylist />
+                </motion.div>
+                <motion.div
+                  style={{ minWidth: 0 }}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-80px' }}
+                  transition={{ duration: 0.5, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <WeatherClock />
+                </motion.div>
+              </div>
             </div>
           </div>
           {/* ── end Activity ── */}

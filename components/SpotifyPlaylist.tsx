@@ -13,11 +13,13 @@ export function SpotifyPlaylist() {
     <div
       style={{
         background: 'rgba(255,255,255,0.05)',
-        border: '2px solid rgba(255,255,255,0.14)',
+        border: '3px solid rgba(255,255,255,0.18)',
         borderRadius: '1rem',
         padding: '1.5rem',
         display: 'flex',
         flexDirection: 'column',
+        minWidth: 0,
+        overflow: 'hidden',
       }}
     >
       <span style={{

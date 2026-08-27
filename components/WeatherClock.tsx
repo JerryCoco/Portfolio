@@ -80,17 +80,23 @@ export function WeatherClock() {
     <div
       style={{
         background: 'linear-gradient(160deg, #4f7fe0 0%, #6b8fe8 45%, #3a5fc4 100%)',
-        border: '2px solid rgba(255,255,255,0.18)',
+        border: '3px solid rgba(255,255,255,0.28)',
         borderRadius: '1rem',
         padding: '1.25rem',
         display: 'flex',
         flexDirection: 'column',
         gap: '1rem',
+        overflow: 'hidden',
+        minWidth: 0,
       }}
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Doto:wght@700&display=swap');
         .wc-led { font-family: 'Doto', 'Geist Mono', monospace; font-weight: 700; }
+        @media (max-width: 640px) {
+          .wc-temp { font-size: 30px !important; }
+          .wc-clock { font-size: 22px !important; }
+        }
       `}</style>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -113,9 +119,9 @@ export function WeatherClock() {
           <div style={{ marginTop: -6 }}><Skeleton width={150} height={13} borderRadius={4} style={{ background: 'rgba(255,255,255,0.15)' }} /></div>
         </>
       ) : (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-            <span className="wc-led" style={{ fontSize: 40, color: 'white' }}>{weather.temp}°C</span>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+            <span className="wc-led wc-temp" style={{ fontSize: 40, color: 'white' }}>{weather.temp}°C</span>
             <span style={{ fontSize: 18 }}>{condition?.icon}</span>
             <span style={{ fontSize: 15, fontWeight: 600, color: 'white', fontFamily: 'Geist, Inter, sans-serif' }}>
               {condition?.label}
@@ -128,14 +134,15 @@ export function WeatherClock() {
       )}
 
       {/* Nested clock panel */}
-      <div style={{ background: 'rgba(10,10,10,0.55)', borderRadius: 12, padding: '0.85rem 1rem' }}>
+      <div style={{ background: 'rgba(10,10,10,0.55)', borderRadius: 12, padding: '0.85rem 1rem', minWidth: 0, overflow: 'hidden' }}>
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.5)', fontFamily: 'Geist, Inter, sans-serif', marginBottom: 6,
+          whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
           {dateString ?? <Skeleton width={90} height={11} borderRadius={4} />} · GMT
         </div>
-        <div className="wc-led" style={{ fontSize: 28, color: '#7dd3fc', letterSpacing: '0.05em' }}>
+        <div className="wc-led wc-clock" style={{ fontSize: 28, color: '#7dd3fc', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
           {timeString ?? <Skeleton width={130} height={28} borderRadius={6} />}
         </div>
       </div>
