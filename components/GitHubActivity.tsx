@@ -48,6 +48,7 @@ interface HoverInfo {
 export function GitHubActivity() {
   const [days, setDays] = useState<ContributionDay[] | null>(null);
   const [error, setError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const [hover, setHover] = useState<HoverInfo | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -55,7 +56,8 @@ export function GitHubActivity() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
 
-    fetch('/api/github-activity', { signal: controller.signal })
+    setError(false);
+    fetch('/api/github-activity', { signal: controller.signal, cache: 'no-store' })
       .then((res) => {
         if (!res.ok) throw new Error('bad response');
         return res.json();
@@ -68,18 +70,28 @@ export function GitHubActivity() {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, []);
+  }, [retryKey]);
 
   if (error) {
     return (
       <div style={{
         background: 'rgba(255,255,255,0.05)',
-        borderRadius: '1rem', padding: '1.5rem', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', height: 160,
+        borderRadius: '1rem', padding: '1.5rem', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', height: 160, gap: 10,
       }}>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontFamily: 'Geist, Inter, sans-serif' }}>
           GitHub activity is unavailable right now.
         </span>
+        <button
+          onClick={() => setRetryKey((k) => k + 1)}
+          style={{
+            fontSize: 12, color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.08)',
+            border: 'none', borderRadius: 999, padding: '5px 14px', cursor: 'pointer',
+            fontFamily: 'Geist, Inter, sans-serif',
+          }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
