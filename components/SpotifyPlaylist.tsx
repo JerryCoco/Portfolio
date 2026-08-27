@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Skeleton } from './Skeleton';
 
-const PLAYLIST_ID = '1Hm9Oh9hfer07kZFAiXPbd';
+const PLAYLIST_ID = '3M9aJAT22WxlbEg7S6toEe';
 const EMBED_HEIGHT = 352;
 
 export function SpotifyPlaylist() {

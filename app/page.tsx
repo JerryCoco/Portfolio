@@ -339,7 +339,6 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              style={{ maxWidth: 640 }}
             >
               <CurrentlyBuilding />
             </motion.div>
