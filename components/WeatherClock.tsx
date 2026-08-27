@@ -80,6 +80,7 @@ export function WeatherClock() {
     <div
       style={{
         background: 'linear-gradient(160deg, #4f7fe0 0%, #6b8fe8 45%, #3a5fc4 100%)',
+        border: '2px solid rgba(255,255,255,0.18)',
         borderRadius: '1rem',
         padding: '1.25rem',
         display: 'flex',

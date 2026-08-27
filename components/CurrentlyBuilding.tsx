@@ -14,12 +14,8 @@ const PAGES = [
   { label: 'Vendors', path: '/vendors/vendors.html' },
 ];
 
-// Pair pages up for the two-panel (large + small) layout, matching the
-// reference's asymmetric hero + companion tile pairing.
-const SLIDES: (typeof PAGES)[] = [];
-for (let i = 0; i < PAGES.length; i += 2) SLIDES.push(PAGES.slice(i, i + 2));
-
 const AUTO_ADVANCE_MS = 5000;
+const MARQUEE_TEXT = `${PROJECT_LABEL}  ✦  `;
 
 export function CurrentlyBuilding() {
   const [active, setActive] = useState(0);
@@ -37,7 +33,7 @@ export function CurrentlyBuilding() {
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setActive((i) => {
-        const next = (i + 1) % SLIDES.length;
+        const next = (i + 1) % PAGES.length;
         scrollToIndex(next);
         return next;
       });
@@ -62,47 +58,46 @@ export function CurrentlyBuilding() {
     <div style={{
       background: '#141414',
       borderRadius: '1rem', overflow: 'hidden',
-      maxWidth: 480,
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Doto:wght@700&display=swap');
         .led-label {
           font-family: 'Doto', 'Geist Mono', monospace;
           font-weight: 700;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.14em;
           background-image: repeating-linear-gradient(
             90deg,
             rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px,
             transparent 1px, transparent 3px
           );
         }
-        .cb-track {
-          scroll-behavior: smooth;
+        .led-marquee-track { position: relative; height: 26px; overflow: hidden; }
+        .led-marquee-inner {
+          position: absolute; top: 0; left: 0; white-space: nowrap;
+          animation: led-marquee 12s linear infinite;
         }
+        @keyframes led-marquee {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        .cb-track { scroll-behavior: smooth; }
         .cb-track::-webkit-scrollbar { display: none; }
         .cb-track { scrollbar-width: none; -ms-overflow-style: none; }
-        .cb-panel {
-          transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s ease;
-          position: relative;
-        }
-        .cb-panel:hover {
-          transform: scale(1.04);
-          z-index: 2;
-          box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-        }
       `}</style>
 
-      {/* LED-style header */}
+      {/* LED-style marquee header */}
       <div className="led-label" style={{
-        padding: '12px 14px',
+        padding: '14px 16px',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
-        fontSize: 13, color: 'white',
-        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
       }}>
-        {PROJECT_LABEL}
+        <div className="led-marquee-track">
+          <div className="led-marquee-inner" style={{ fontSize: 22, color: 'white' }}>
+            {MARQUEE_TEXT}{MARQUEE_TEXT}
+          </div>
+        </div>
       </div>
 
-      {/* Freely swipeable track — each slide is a large + small panel pair */}
+      {/* Freely swipeable track — one full page preview per slide */}
       <div
         ref={trackRef}
         onScroll={handleScroll}
@@ -114,57 +109,51 @@ export function CurrentlyBuilding() {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {SLIDES.map((slide, si) => (
+        {PAGES.map((page, i) => (
           <div
-            key={si}
+            key={page.path}
+            onClick={() => setOpenPage(page)}
             style={{
               flex: '0 0 100%',
               scrollSnapAlign: 'start',
-              display: 'grid',
-              gridTemplateColumns: slide.length === 2 ? '3fr 1fr' : '1fr',
-              gap: 8,
+              position: 'relative',
               aspectRatio: '16 / 9',
+              background: '#0d0d0d',
+              cursor: 'pointer',
               padding: 12,
             }}
           >
-            {slide.map((page) => (
-              <div
-                key={page.path}
-                className="cb-panel"
-                onClick={() => setOpenPage(page)}
-                style={{ borderRadius: 8, overflow: 'hidden', background: '#0d0d0d', cursor: 'pointer' }}
-              >
-                {!loaded[page.path] && (
-                  <div style={{ position: 'absolute', inset: 0 }}>
-                    <Skeleton width="100%" height="100%" borderRadius={8} />
-                  </div>
-                )}
-                <iframe
-                  src={`${BASE_URL}${page.path}`}
-                  title={`${page.label} preview`}
-                  loading="eager"
-                  tabIndex={-1}
-                  onLoad={() => markLoaded(page.path)}
-                  style={{
-                    position: 'absolute', top: 0, left: 0,
-                    width: '250%', height: '250%',
-                    transform: 'scale(0.4)', transformOrigin: 'top left',
-                    border: 'none', pointerEvents: 'none',
-                    opacity: loaded[page.path] ? 1 : 0,
-                    transition: 'opacity 0.3s ease',
-                  }}
-                />
-                <span style={{
-                  position: 'absolute', bottom: 6, left: 8,
-                  fontSize: 10, color: 'rgba(255,255,255,0.6)',
-                  fontFamily: 'Geist Mono, monospace', letterSpacing: '0.04em',
-                  textTransform: 'uppercase', background: 'rgba(0,0,0,0.55)',
-                  padding: '2px 6px', borderRadius: 4, pointerEvents: 'none',
-                }}>
-                  {page.label}
-                </span>
-              </div>
-            ))}
+            <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: 8, overflow: 'hidden' }}>
+              {!loaded[page.path] && (
+                <div style={{ position: 'absolute', inset: 0 }}>
+                  <Skeleton width="100%" height="100%" borderRadius={8} />
+                </div>
+              )}
+              <iframe
+                src={`${BASE_URL}${page.path}`}
+                title={`${page.label} preview`}
+                loading="eager"
+                tabIndex={-1}
+                onLoad={() => markLoaded(page.path)}
+                style={{
+                  position: 'absolute', top: 0, left: 0,
+                  width: '166.67%', height: '166.67%',
+                  transform: 'scale(0.6)', transformOrigin: 'top left',
+                  border: 'none', pointerEvents: 'none',
+                  opacity: loaded[page.path] ? 1 : 0,
+                  transition: 'opacity 0.3s ease',
+                }}
+              />
+              <span style={{
+                position: 'absolute', bottom: 8, left: 10,
+                fontSize: 11, color: 'rgba(255,255,255,0.6)',
+                fontFamily: 'Geist Mono, monospace', letterSpacing: '0.04em',
+                textTransform: 'uppercase', background: 'rgba(0,0,0,0.55)',
+                padding: '3px 8px', borderRadius: 4, pointerEvents: 'none',
+              }}>
+                {page.label}
+              </span>
+            </div>
           </div>
         ))}
       </div>

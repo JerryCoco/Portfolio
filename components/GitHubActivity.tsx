@@ -54,16 +54,25 @@ export function GitHubActivity() {
 
   useEffect(() => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+    // Generous timeout: on a freshly-started dev server, Next.js compiles
+    // this route on-demand on the very first hit, which combined with the
+    // GitHub round-trip can genuinely take longer than a normal request.
+    const timeout = setTimeout(() => controller.abort(), 25000);
 
     setError(false);
     fetch('/api/github-activity', { signal: controller.signal, cache: 'no-store' })
-      .then((res) => {
-        if (!res.ok) throw new Error('bad response');
+      .then(async (res) => {
+        if (!res.ok) {
+          const body = await res.text().catch(() => '');
+          throw new Error(`GitHub Activity fetch failed: ${res.status} ${body.slice(0, 200)}`);
+        }
         return res.json();
       })
       .then((data) => setDays(data.days))
-      .catch(() => setError(true))
+      .catch((err) => {
+        console.error('[GitHubActivity]', err);
+        setError(true);
+      })
       .finally(() => clearTimeout(timeout));
 
     return () => {
@@ -75,7 +84,7 @@ export function GitHubActivity() {
   if (error) {
     return (
       <div style={{
-        background: 'rgba(255,255,255,0.05)',
+        background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(255,255,255,0.14)',
         borderRadius: '1rem', padding: '1.5rem', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', height: 160, gap: 10,
       }}>
@@ -137,7 +146,7 @@ export function GitHubActivity() {
   return (
     <div
       style={{
-        background: 'rgba(255,255,255,0.05)',
+        background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(255,255,255,0.14)',
         borderRadius: '1rem',
         padding: '1.5rem',
       }}

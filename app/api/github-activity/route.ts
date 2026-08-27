@@ -43,26 +43,36 @@ function levelFor(count: number): number {
 export async function GET() {
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
+    console.error('[github-activity] GITHUB_TOKEN is not set in the running server process — restart npm run dev after editing .env.local.');
     return Response.json({ error: 'GITHUB_TOKEN is not configured' }, { status: 500 });
   }
 
-  const res = await fetch('https://api.github.com/graphql', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ query: QUERY, variables: { login: GITHUB_USERNAME } }),
-    next: { revalidate: 3600 },
-  });
+  let res: Response;
+  try {
+    res = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query: QUERY, variables: { login: GITHUB_USERNAME } }),
+      next: { revalidate: 3600 },
+    });
+  } catch (err) {
+    console.error('[github-activity] network error calling GitHub GraphQL API:', err);
+    return Response.json({ error: 'Network error reaching GitHub' }, { status: 502 });
+  }
 
   if (!res.ok) {
-    return Response.json({ error: 'Failed to fetch GitHub contributions' }, { status: 502 });
+    const bodyText = await res.text().catch(() => '');
+    console.error(`[github-activity] GitHub API responded ${res.status} ${res.statusText}:`, bodyText.slice(0, 500));
+    return Response.json({ error: `GitHub API returned ${res.status}` }, { status: 502 });
   }
 
   const json = await res.json();
   const calendar = json?.data?.user?.contributionsCollection?.contributionCalendar;
   if (!calendar) {
+    console.error('[github-activity] Unexpected GraphQL response shape:', JSON.stringify(json).slice(0, 500));
     return Response.json({ error: json?.errors ?? 'Unexpected GraphQL response' }, { status: 502 });
   }
 
