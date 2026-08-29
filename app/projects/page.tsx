@@ -108,7 +108,10 @@ export default function Projects() {
         .side-projects-mobile { display: none; }
         @media (max-width: 640px) {
           .side-projects-desktop { display: none; }
-          .side-projects-mobile { display: block; }
+          /* Bleed to the screen edges so the circular tiles get the most
+             room possible on narrow phones, instead of being squeezed by
+             the page's normal side padding. */
+          .side-projects-mobile { display: block; margin: 0 -2rem; }
         }
       `}</style>
 

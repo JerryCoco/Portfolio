@@ -40,18 +40,19 @@ export function SideProjectsCarousel({ images, className }: SideProjectsCarousel
             key={src}
             onClick={() => setActiveIndex(i)}
             style={{
-              borderRadius: '0.75rem',
+              borderRadius: '50%',
               overflow: 'hidden',
               backgroundColor: '#141414',
               cursor: 'pointer',
               aspectRatio: '1 / 1',
+              border: '1px solid rgba(255,255,255,0.08)',
             }}
           >
             <img
               src={src}
               alt=""
               loading={i < 4 ? 'eager' : 'lazy'}
-              style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
           </div>
         ))}
