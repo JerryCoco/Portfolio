@@ -67,19 +67,19 @@ export default function Footer() {
   const valueStyle: React.CSSProperties = { fontSize: 15, color: 'rgba(255,255,255,0.75)' };
   const monoStyle: React.CSSProperties = { ...valueStyle, fontFamily: 'monospace', letterSpacing: '0.02em' };
   const textColor = 'rgba(255,255,255,0.75)';
-  const dividerColor = 'rgba(255,255,255,0.07)';
-  const dividerGradient = `linear-gradient(90deg, transparent, ${dividerColor} 25%, ${dividerColor} 75%, transparent)`;
 
   return (
     <footer style={{ marginTop: '5rem', marginBottom: 72, padding: 0, background: '#0d0d0d' }}>
       {/* Responsive CSS */}
       <style>{`
         @media (max-width: 768px) {
-          .footer-grid { grid-template-columns: 1fr !important; }
+          .footer-grid { padding: 0 0.5rem; }
           .footer-nav-row { flex-direction: column !important; gap: 2rem !important; }
           .footer-links { flex-direction: column !important; align-items: flex-start !important; gap: 0.6rem !important; }
           .footer-copyright { flex-direction: column !important; gap: 0.25rem !important; text-align: center !important; }
-          .footer-divider { display: none !important; }
+        }
+        @media (max-width: 480px) {
+          .footer-grid > div { padding: 1.25rem 0.75rem !important; }
         }
       `}</style>
 
@@ -120,13 +120,10 @@ export default function Footer() {
 
           {/* Nav row with footer-nav-row class */}
           <div className="footer-nav-row" style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between', alignItems: 'flex-start', padding: '2rem 2rem' }}>
-            <div style={{ position: 'absolute', top: 0, left: '2rem', right: '2rem', height: 1, background: dividerGradient, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: 0, left: '2rem', right: '2rem', height: 1, background: dividerGradient, pointerEvents: 'none' }} />
-
             <div style={{ textAlign: 'left' }}>
               <div style={labelStyle}>Elsewhere</div>
               {/* Elsewhere links - updated to 16px sans-serif */}
-              <div className="footer-links" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1.1rem', alignItems: 'center', fontSize: 20, color: textColor, fontFamily: 'Instrument Serif, serif' }}>
+              <div className="footer-links" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.9rem 1.5rem', alignItems: 'center', fontSize: 16, color: textColor, fontFamily: 'Geist, Inter, sans-serif' }}>
                 {[
                   { label: 'Twitter', href: 'https://x.com/jeremiahabban' },
                   { label: 'GitHub', href: 'https://github.com/JerryCoco' },

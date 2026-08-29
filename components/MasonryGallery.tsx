@@ -133,7 +133,10 @@ function MasonryTile({
         ref={imgRef}
         src={src}
         alt=""
-        loading={index < 6 ? 'eager' : 'lazy'}
+        // CSS `column-count` masonry confuses the browser's native
+        // lazy-load viewport heuristic — most tiles never fetch. Eager
+        // for all of them is the reliable fix at this gallery size.
+        loading="eager"
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(true)}
         style={{
