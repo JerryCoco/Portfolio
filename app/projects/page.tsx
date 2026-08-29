@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MasonryGallery } from '@/components/MasonryGallery';
+import { ImageWithSkeleton } from '@/components/ImageWithSkeleton';
 import { sideProjectImages } from '@/lib/side-projects';
 
 const allProjects = [
@@ -215,16 +216,11 @@ export default function Projects() {
                   }}
                 >
                   {/* ── Image ── */}
-                  <img
+                  <ImageWithSkeleton
                     src={project.image}
                     alt={project.name}
-                    style={{
-                      position: 'absolute', inset: 0,
-                      width: '100%', height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: project.slug === 'remedycare-hars' ? 'top center' : 'center',
-                      zIndex: 0,
-                    }}
+                    objectPosition={project.slug === 'remedycare-hars' ? 'top center' : 'center'}
+                    loading={idx < 6 ? 'eager' : 'lazy'}
                   />
 
                   {/* ── Gradient ── */}

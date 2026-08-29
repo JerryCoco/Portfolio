@@ -17,20 +17,6 @@ const bibleVerses = [
   { ref: "Proverbs 3:5-6", text: "Trust in the Lord with all your heart and lean not on your own understanding.", url: "https://www.biblegateway.com/passage/?search=Proverbs+3%3A5-6" },
 ];
 
-const motivationalQuotes = [
-  { text: "Your time is limited, so don't waste it living someone else's life.", author: "Steve Jobs" },
-  { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
-  { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
-  { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
-  { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
-  { text: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford" },
-  { text: "We face neither East nor West — we face forward.", author: "Kwame Nkrumah" },
-  { text: "Until the lion learns to write, every story will glorify the hunter.", author: "Chinua Achebe" },
-  { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
-  { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
-  { text: "What is famous is rarely wise", author: "Omar Sterling" },
-];
-
 function getDailyItem<T>(array: T[], storageKey: string): T {
   const now = new Date();
   const todayStr = now.toDateString();
@@ -60,7 +46,6 @@ export default function Footer() {
   const [time, setTime] = useState('');
   const [viewport, setViewport] = useState('—');
   const [verse, setVerse] = useState(bibleVerses[0]);
-  const [quote, setQuote] = useState(motivationalQuotes[0]);
 
   useEffect(() => {
     const updateClock = () => {
@@ -75,27 +60,25 @@ export default function Footer() {
     const onResize = () => setViewport(`${window.innerWidth}×${window.innerHeight}`);
     window.addEventListener('resize', onResize);
     setVerse(getDailyItem(bibleVerses, 'verse'));
-    let quoteIndex = 0;
-    const saved = localStorage.getItem('lastQuoteIndex');
-    if (saved !== null) quoteIndex = parseInt(saved, 10) % motivationalQuotes.length;
-    setQuote(motivationalQuotes[quoteIndex]);
-    const quoteInterval = setInterval(() => {
-      quoteIndex = (quoteIndex + 1) % motivationalQuotes.length;
-      setQuote(motivationalQuotes[quoteIndex]);
-      localStorage.setItem('lastQuoteIndex', quoteIndex.toString());
-    }, 60000);
-    return () => { clearInterval(clockInterval); clearInterval(quoteInterval); window.removeEventListener('resize', onResize); };
+    return () => { clearInterval(clockInterval); window.removeEventListener('resize', onResize); };
   }, []);
 
   const labelStyle: React.CSSProperties = {
-    fontSize: 11, fontWeight: 600, letterSpacing: '0.1em',
-    textTransform: 'uppercase', color: 'rgba(255,255,255,0.28)', marginBottom: 10,
+    fontSize: 11, fontWeight: 600, letterSpacing: '0.06em',
+    color: 'rgba(255,255,255,0.32)', marginBottom: 10,
+    fontFamily: 'Geist Mono, monospace',
   };
   const valueStyle: React.CSSProperties = { fontSize: 15, color: 'rgba(255,255,255,0.75)' };
   const monoStyle: React.CSSProperties = { ...valueStyle, fontFamily: 'monospace', letterSpacing: '0.02em' };
   const textColor = 'rgba(255,255,255,0.75)';
   const dividerColor = 'rgba(255,255,255,0.07)';
   const dividerGradient = `linear-gradient(90deg, transparent, ${dividerColor} 25%, ${dividerColor} 75%, transparent)`;
+  const rowDividerStyle: React.CSSProperties = {
+    borderTop: '1px dashed rgba(255,255,255,0.12)',
+  };
+  const Label = ({ children }: { children: React.ReactNode }) => (
+    <div style={labelStyle}>/ {children}</div>
+  );
 
   return (
     <footer style={{ marginTop: '5rem', marginBottom: 72, padding: 0, background: '#0d0d0d' }}>
@@ -103,6 +86,7 @@ export default function Footer() {
       <style>{`
         @media (max-width: 768px) {
           .footer-grid { grid-template-columns: 1fr !important; }
+          .footer-cell-border-left { border-left: none !important; border-top: 1px dashed rgba(255,255,255,0.12) !important; }
           .footer-nav-row { flex-direction: column !important; gap: 2rem !important; }
           .footer-links { flex-direction: column !important; align-items: flex-start !important; gap: 0.6rem !important; }
           .footer-links .separator { display: none !important; }
@@ -114,10 +98,10 @@ export default function Footer() {
       <div style={{ margin: '0 auto', maxWidth: 1000, padding: '0 clamp(1rem, 4vw, 2.5rem) 4rem' }}>
         <div style={{ border: '1px solid rgba(255,255,255,0.09)', borderRadius: 10, background: '#131313', overflow: 'hidden', position: 'relative' }}>
 
-          {/* Grid with footer-grid class - 3 columns */}
-          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', position: 'relative' }}>
+          {/* Stat grid — 2 columns, dashed row dividers, "/ LABEL" style */}
+          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
             <div style={{ padding: '1.75rem 2rem' }}>
-              <div style={labelStyle}>VERSE</div>
+              <Label>Verse</Label>
               <a href={verse.url} target="_blank" rel="noopener noreferrer"
                 style={{ ...monoStyle, textDecoration: 'none', transition: 'color 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.color = 'white'}
@@ -127,33 +111,24 @@ export default function Footer() {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 6, lineHeight: 1.4 }}>{verse.text}</div>
             </div>
 
-            <div style={{ padding: '1.75rem 2rem' }}>
-              <div style={labelStyle}>WORD</div>
-              <div style={valueStyle}>"{quote.text}"</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>— {quote.author}</div>
-            </div>
-
-            <div style={{ padding: '1.75rem 2rem' }}>
-              <div style={labelStyle}>Visitor</div>
+            <div className="footer-cell-border-left" style={{ padding: '1.75rem 2rem', borderLeft: `1px dashed ${dividerColor}` }}>
+              <Label>Visitor</Label>
               <div style={monoStyle}><VisitorCounter /></div>
             </div>
 
-            <div style={{ padding: '1.75rem 2rem' }}>
-              <div style={labelStyle}>Viewport</div>
+            <div style={{ padding: '1.75rem 2rem', ...rowDividerStyle }}>
+              <Label>Viewport</Label>
               <div style={monoStyle}>{viewport}</div>
             </div>
-            <div style={{ padding: '1.75rem 2rem' }}>
-              <div style={labelStyle}>Shipped</div>
+            <div className="footer-cell-border-left" style={{ padding: '1.75rem 2rem', borderLeft: `1px dashed ${dividerColor}`, ...rowDividerStyle }}>
+              <Label>Shipped</Label>
               <div style={valueStyle}>August 2026</div>
             </div>
-            <div style={{ padding: '1.75rem 2rem' }}>
-              <div style={labelStyle}>Local</div>
+
+            <div style={{ padding: '1.75rem 2rem', gridColumn: '1 / -1', ...rowDividerStyle }}>
+              <Label>Local</Label>
               <div style={monoStyle}>{time}</div>
             </div>
-
-            {/* Vertical dividers with footer-divider class */}
-            <div className="footer-divider" style={{ position: 'absolute', left: '33.33%', top: '1.75rem', bottom: '1.75rem', width: 1, background: dividerColor, pointerEvents: 'none' }} />
-            <div className="footer-divider" style={{ position: 'absolute', left: '66.66%', top: '1.75rem', bottom: '1.75rem', width: 1, background: dividerColor, pointerEvents: 'none' }} />
           </div>
 
           {/* Nav row with footer-nav-row class */}
@@ -162,7 +137,7 @@ export default function Footer() {
             <div style={{ position: 'absolute', bottom: 0, left: '2rem', right: '2rem', height: 1, background: dividerGradient, pointerEvents: 'none' }} />
 
             <div>
-              <div style={labelStyle}>On This Site</div>
+              <Label>On This Site</Label>
               {/* On This Site links - updated to 16px sans-serif */}
               <div className="footer-links" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', fontSize: 20, color: textColor, fontFamily: 'Instrument Serif, serif' }}>
                 {[
@@ -189,7 +164,7 @@ export default function Footer() {
             </div>
 
             <div style={{ textAlign: 'left' }}>
-              <div style={labelStyle}>Elsewhere</div>
+              <Label>Elsewhere</Label>
               {/* Elsewhere links - updated to 16px sans-serif */}
               <div className="footer-links" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', fontSize: 20, color: textColor, fontFamily: 'Instrument Serif, serif' }}>
                 {[

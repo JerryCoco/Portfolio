@@ -9,22 +9,33 @@ const SESSION_FLAG = 'visitorCounted';
 
 export function VisitorCounter() {
   const [count, setCount] = useState<number | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     // Count this visit once per browser session, not on every re-render.
     if (!sessionStorage.getItem(SESSION_FLAG)) {
       sessionStorage.setItem(SESSION_FLAG, '1');
-      setDoc(STATS_DOC, { visitors: increment(1) }, { merge: true }).catch(() => {});
+      setDoc(STATS_DOC, { visitors: increment(1) }, { merge: true }).catch(() => setError(true));
     }
 
-    const unsubscribe = onSnapshot(STATS_DOC, (snap) => {
-      const visitors = snap.data()?.visitors;
-      if (typeof visitors === 'number') setCount(visitors);
-    });
+    const unsubscribe = onSnapshot(
+      STATS_DOC,
+      (snap) => {
+        const visitors = snap.data()?.visitors;
+        if (typeof visitors === 'number') setCount(visitors);
+      },
+      () => setError(true),
+    );
 
     return () => unsubscribe();
   }, []);
 
+  // Firestore denies the read/write until its security rule for
+  // siteStats/{doc} is added — show a dash instead of nothing so the
+  // footer never looks broken while that's pending.
+  if (error) {
+    return <span style={{ fontFamily: 'Geist Mono, monospace', opacity: 0.4 }}>—</span>;
+  }
   if (count === null) return null;
 
   return (

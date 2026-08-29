@@ -1,0 +1,142 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+
+interface Section {
+  id: string;
+  label: string;
+}
+
+const SECTIONS: Section[] = [
+  { id: 'currently-building', label: 'Currently Building' },
+  { id: 'featured-work-cards', label: 'Featured Work' },
+  { id: 'blog', label: 'Blog' },
+  { id: 'activity', label: 'Activity' },
+];
+
+/**
+ * Edge-docked scroll navigator — a vertical capsule of dots pinned to the
+ * right edge, one per homepage section. The active section (by scroll
+ * position) fills in; clicking a dot smooth-scrolls to that section.
+ * Hidden until the hero has scrolled past, and hidden on narrow screens
+ * where the bottom nav already occupies that space.
+ */
+export function ScrollNavigator() {
+  const [activeId, setActiveId] = useState<string>(SECTIONS[0].id);
+  const [visible, setVisible] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const tickingRef = useRef(false);
+
+  useEffect(() => {
+    const els = SECTIONS
+      .map((s) => ({ id: s.id, el: document.getElementById(s.id) }))
+      .filter((s): s is { id: string; el: HTMLElement } => !!s.el);
+
+    const heroEl = document.getElementById('hero');
+
+    const update = () => {
+      tickingRef.current = false;
+
+      if (heroEl) {
+        setVisible(window.scrollY > heroEl.getBoundingClientRect().height * 0.6);
+      }
+
+      // Whichever section's top has scrolled furthest past the viewport's
+      // upper third (without going by) is the "active" one.
+      const threshold = window.innerHeight * 0.35;
+      let current = els[0]?.id;
+      for (const { id, el } of els) {
+        if (el.getBoundingClientRect().top <= threshold) current = id;
+      }
+      if (current) setActiveId(current);
+    };
+
+    const onScroll = () => {
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+      requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <div
+      className="scroll-navigator"
+      style={{
+        position: 'fixed',
+        right: 20,
+        top: '50%',
+        transform: 'translateY(-50%)',
+        zIndex: 40,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 14,
+        padding: '14px 8px',
+        borderRadius: 999,
+        background: 'rgba(20,20,20,0.55)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        opacity: visible ? 1 : 0,
+        pointerEvents: visible ? 'auto' : 'none',
+        transition: 'opacity 0.3s ease',
+      }}
+    >
+      <style>{`
+        @media (max-width: 900px) {
+          .scroll-navigator { display: none !important; }
+        }
+      `}</style>
+
+      {SECTIONS.map((section) => {
+        const isActive = activeId === section.id;
+        const isHovered = hoveredId === section.id;
+        return (
+          <div key={section.id} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            {isHovered && (
+              <span style={{
+                position: 'absolute', right: 'calc(100% + 10px)', top: '50%', transform: 'translateY(-50%)',
+                fontSize: 11, fontWeight: 500, color: 'white', whiteSpace: 'nowrap',
+                background: 'rgba(20,20,20,0.9)', border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 6, padding: '4px 8px', fontFamily: 'Geist, Inter, sans-serif',
+                pointerEvents: 'none',
+              }}>
+                {section.label}
+              </span>
+            )}
+            <button
+              onClick={() => scrollTo(section.id)}
+              onMouseEnter={() => setHoveredId(section.id)}
+              onMouseLeave={() => setHoveredId(null)}
+              aria-label={`Scroll to ${section.label}`}
+              style={{
+                width: isActive ? 8 : 6,
+                height: isActive ? 8 : 6,
+                borderRadius: '50%',
+                background: isActive ? 'white' : 'rgba(255,255,255,0.35)',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export default ScrollNavigator;

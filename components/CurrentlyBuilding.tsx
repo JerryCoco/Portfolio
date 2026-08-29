@@ -54,6 +54,20 @@ export function CurrentlyBuilding() {
     setLoaded((prev) => ({ ...prev, [path]: true }));
   };
 
+  // The real iframe `load` event waits for the whole remote page (fonts,
+  // scripts, analytics) to fully finish — often several seconds. That's
+  // not what the skeleton should be timed to: the browser starts painting
+  // the framed page long before `load` fires. So reveal each slide on a
+  // short, staggered timer instead — fast but still feels natural rather
+  // than all five popping in at once — and let the real `onLoad` mark it
+  // done sooner too, if it happens to beat the timer.
+  useEffect(() => {
+    const timers = PAGES.map((page, i) =>
+      setTimeout(() => markLoaded(page.path), 350 + i * 120),
+    );
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
   return (
     <div style={{
       background: '#141414',

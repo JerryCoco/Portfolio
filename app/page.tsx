@@ -39,8 +39,22 @@ function FeaturedImage({ src, alt, objectPosition }: { src: string; alt: string;
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    if (imgRef.current?.complete) setLoaded(true);
-  }, []);
+    const img = imgRef.current;
+    if (!img) return;
+    // A native listener (not just React's onLoad prop) so a fast/cached
+    // load can't race past the listener attachment and get missed.
+    if (img.complete) {
+      setLoaded(true);
+      return;
+    }
+    const onLoad = () => setLoaded(true);
+    img.addEventListener('load', onLoad);
+    img.addEventListener('error', onLoad);
+    return () => {
+      img.removeEventListener('load', onLoad);
+      img.removeEventListener('error', onLoad);
+    };
+  }, [src]);
 
   return (
     <>

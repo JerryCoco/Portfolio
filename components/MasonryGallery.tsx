@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GalleryLightbox } from './GalleryLightbox';
+import { Skeleton } from './Skeleton';
 
 export interface MasonryGalleryProps {
   images: string[];
@@ -56,7 +57,27 @@ function MasonryTile({
   registerRef: (el: HTMLDivElement | null) => void;
 }) {
   const [visible, setVisible] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const localRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+    // A native listener (not just React's onLoad prop) so a fast/cached
+    // load can't race past the listener attachment and get missed.
+    if (img.complete) {
+      setLoaded(true);
+      return;
+    }
+    const onLoad = () => setLoaded(true);
+    img.addEventListener('load', onLoad);
+    img.addEventListener('error', onLoad);
+    return () => {
+      img.removeEventListener('load', onLoad);
+      img.removeEventListener('error', onLoad);
+    };
+  }, [src]);
 
   useEffect(() => {
     const el = localRef.current;
@@ -103,14 +124,22 @@ function MasonryTile({
         e.currentTarget.style.filter = 'brightness(1)';
       }}
     >
+      {!loaded && (
+        <div style={{ aspectRatio: '4 / 5' }}>
+          <Skeleton width="100%" height="100%" borderRadius={0} />
+        </div>
+      )}
       <img
+        ref={imgRef}
         src={src}
         alt=""
         loading={index < 6 ? 'eager' : 'lazy'}
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
         style={{
           width: '100%',
           height: 'auto',
-          display: 'block',
+          display: loaded ? 'block' : 'none',
           objectFit: 'cover',
         }}
       />
