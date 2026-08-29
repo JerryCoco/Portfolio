@@ -1,7 +1,5 @@
 'use client';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
 import { VisitorCounter } from './VisitorCounter';
 
 const bibleVerses = [
@@ -42,7 +40,6 @@ function getDailyItem<T>(array: T[], storageKey: string): T {
 }
 
 export default function Footer() {
-  const pathname = usePathname();
   const [time, setTime] = useState('');
   const [viewport, setViewport] = useState('—');
   const [verse, setVerse] = useState(bibleVerses[0]);
@@ -79,6 +76,7 @@ export default function Footer() {
       <style>{`
         @media (max-width: 768px) {
           .footer-grid { grid-template-columns: 1fr !important; }
+          .footer-cell-border-left { border-left: none !important; border-top: 1px solid rgba(255,255,255,0.07) !important; }
           .footer-nav-row { flex-direction: column !important; gap: 2rem !important; }
           .footer-links { flex-direction: column !important; align-items: flex-start !important; gap: 0.6rem !important; }
           .footer-copyright { flex-direction: column !important; gap: 0.25rem !important; text-align: center !important; }
@@ -89,9 +87,9 @@ export default function Footer() {
       <div style={{ margin: '0 auto', maxWidth: 1000, padding: '0 clamp(1rem, 4vw, 2.5rem) 4rem' }}>
         <div style={{ border: '1px solid rgba(255,255,255,0.09)', borderRadius: 10, background: '#131313', overflow: 'hidden', position: 'relative' }}>
 
-          {/* Grid with footer-grid class - 3 columns */}
-          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', position: 'relative' }}>
-            <div style={{ padding: '1.75rem 2rem' }}>
+          {/* Stat grid — Verse full-width, then paired rows: Viewport+Shipped, Local+Visitor */}
+          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+            <div style={{ padding: '1.75rem 2rem', gridColumn: '1 / -1', borderBottom: `1px solid ${dividerColor}` }}>
               <div style={labelStyle}>Verse</div>
               <a href={verse.url} target="_blank" rel="noopener noreferrer"
                 style={{ ...monoStyle, textDecoration: 'none', transition: 'color 0.2s' }}
@@ -102,58 +100,29 @@ export default function Footer() {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 6, lineHeight: 1.4 }}>{verse.text}</div>
             </div>
 
-            <div style={{ padding: '1.75rem 2rem' }}>
-              <div style={labelStyle}>Visitor</div>
-              <div style={monoStyle}><VisitorCounter /></div>
-            </div>
-
-            <div style={{ padding: '1.75rem 2rem' }}>
+            <div style={{ padding: '1.75rem 2rem', borderBottom: `1px solid ${dividerColor}` }}>
               <div style={labelStyle}>Viewport</div>
               <div style={monoStyle}>{viewport}</div>
             </div>
-
-            <div style={{ padding: '1.75rem 2rem' }}>
+            <div className="footer-cell-border-left" style={{ padding: '1.75rem 2rem', borderLeft: `1px solid ${dividerColor}`, borderBottom: `1px solid ${dividerColor}` }}>
               <div style={labelStyle}>Shipped</div>
               <div style={valueStyle}>August 2026</div>
             </div>
+
             <div style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Local</div>
               <div style={monoStyle}>{time}</div>
             </div>
-
-            {/* Vertical dividers with footer-divider class */}
-            <div className="footer-divider" style={{ position: 'absolute', left: '33.33%', top: '1.75rem', bottom: '1.75rem', width: 1, background: dividerColor, pointerEvents: 'none' }} />
-            <div className="footer-divider" style={{ position: 'absolute', left: '66.66%', top: '1.75rem', bottom: '1.75rem', width: 1, background: dividerColor, pointerEvents: 'none' }} />
+            <div className="footer-cell-border-left" style={{ padding: '1.75rem 2rem', borderLeft: `1px solid ${dividerColor}` }}>
+              <div style={labelStyle}>Visitor</div>
+              <div style={monoStyle}><VisitorCounter /></div>
+            </div>
           </div>
 
           {/* Nav row with footer-nav-row class */}
           <div className="footer-nav-row" style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between', alignItems: 'flex-start', padding: '2rem 2rem' }}>
             <div style={{ position: 'absolute', top: 0, left: '2rem', right: '2rem', height: 1, background: dividerGradient, pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', bottom: 0, left: '2rem', right: '2rem', height: 1, background: dividerGradient, pointerEvents: 'none' }} />
-
-            <div>
-              <div style={labelStyle}>On This Site</div>
-              {/* On This Site links - updated to 16px sans-serif */}
-              <div className="footer-links" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1.1rem', alignItems: 'center', fontSize: 20, color: textColor, fontFamily: 'Instrument Serif, serif' }}>
-                {[
-                  { label: 'Home', href: '/' },
-                  { label: 'About', href: '/about' },
-                  { label: 'Projects', href: '/projects' },
-                  { label: 'Blog', href: '/blog' },
-                  { label: 'Guestbook', href: '/guestbook' },
-                ].map((link) => (
-                  <Link key={link.href} href={link.href} style={{
-                    color: pathname === link.href ? 'white' : textColor,
-                    textDecoration: 'none',
-                    transition: 'color 0.2s',
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.color = 'white'}
-                    onMouseLeave={e => e.currentTarget.style.color = pathname === link.href ? 'white' : textColor}>
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
 
             <div style={{ textAlign: 'left' }}>
               <div style={labelStyle}>Elsewhere</div>
