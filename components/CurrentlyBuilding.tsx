@@ -83,6 +83,10 @@ export function CurrentlyBuilding() {
         .cb-track { scroll-behavior: smooth; }
         .cb-track::-webkit-scrollbar { display: none; }
         .cb-track { scrollbar-width: none; -ms-overflow-style: none; }
+        .cb-slide { aspect-ratio: 16 / 9; }
+        @media (max-width: 640px) {
+          .cb-slide { aspect-ratio: 3 / 4; }
+        }
       `}</style>
 
       {/* LED-style marquee header */}
@@ -113,11 +117,11 @@ export function CurrentlyBuilding() {
           <div
             key={page.path}
             onClick={() => setOpenPage(page)}
+            className="cb-slide"
             style={{
               flex: '0 0 100%',
               scrollSnapAlign: 'start',
               position: 'relative',
-              aspectRatio: '16 / 9',
               background: '#0d0d0d',
               cursor: 'pointer',
               padding: 12,
