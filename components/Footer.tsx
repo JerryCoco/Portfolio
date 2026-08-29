@@ -76,7 +76,6 @@ export default function Footer() {
       <style>{`
         @media (max-width: 768px) {
           .footer-grid { grid-template-columns: 1fr !important; }
-          .footer-cell-border-left { border-left: none !important; border-top: 1px solid rgba(255,255,255,0.07) !important; }
           .footer-nav-row { flex-direction: column !important; gap: 2rem !important; }
           .footer-links { flex-direction: column !important; align-items: flex-start !important; gap: 0.6rem !important; }
           .footer-copyright { flex-direction: column !important; gap: 0.25rem !important; text-align: center !important; }
@@ -87,9 +86,9 @@ export default function Footer() {
       <div style={{ margin: '0 auto', maxWidth: 1000, padding: '0 clamp(1rem, 4vw, 2.5rem) 4rem' }}>
         <div style={{ border: '1px solid rgba(255,255,255,0.09)', borderRadius: 10, background: '#131313', overflow: 'hidden', position: 'relative' }}>
 
-          {/* Stat grid — Verse full-width, then paired rows: Viewport+Shipped, Local+Visitor */}
+          {/* Stat grid — Verse full-width, then paired rows: Viewport+Shipped, Local+Visitor. No divider lines. */}
           <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-            <div style={{ padding: '1.75rem 2rem', gridColumn: '1 / -1', borderBottom: `1px solid ${dividerColor}` }}>
+            <div style={{ padding: '1.75rem 2rem', gridColumn: '1 / -1' }}>
               <div style={labelStyle}>Verse</div>
               <a href={verse.url} target="_blank" rel="noopener noreferrer"
                 style={{ ...monoStyle, textDecoration: 'none', transition: 'color 0.2s' }}
@@ -100,11 +99,11 @@ export default function Footer() {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 6, lineHeight: 1.4 }}>{verse.text}</div>
             </div>
 
-            <div style={{ padding: '1.75rem 2rem', borderBottom: `1px solid ${dividerColor}` }}>
+            <div style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Viewport</div>
               <div style={monoStyle}>{viewport}</div>
             </div>
-            <div className="footer-cell-border-left" style={{ padding: '1.75rem 2rem', borderLeft: `1px solid ${dividerColor}`, borderBottom: `1px solid ${dividerColor}` }}>
+            <div style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Shipped</div>
               <div style={valueStyle}>August 2026</div>
             </div>
@@ -113,7 +112,7 @@ export default function Footer() {
               <div style={labelStyle}>Local</div>
               <div style={monoStyle}>{time}</div>
             </div>
-            <div className="footer-cell-border-left" style={{ padding: '1.75rem 2rem', borderLeft: `1px solid ${dividerColor}` }}>
+            <div style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Visitor</div>
               <div style={monoStyle}><VisitorCounter /></div>
             </div>
