@@ -209,7 +209,7 @@ export function MasonryGallery({
           .masonry-gallery { column-count: 2 !important; }
         }
         @media (max-width: 560px) {
-          .masonry-gallery { column-count: 1 !important; }
+          .masonry-gallery { column-count: 2 !important; }
         }
       `}</style>
 

@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MasonryGallery } from '@/components/MasonryGallery';
-import { SideProjectsCarousel } from '@/components/SideProjectsCarousel';
 import { sideProjectImages } from '@/lib/side-projects';
 
 const allProjects = [
@@ -103,15 +102,6 @@ export default function Projects() {
 
         @media (min-width: 641px) and (max-width: 900px) {
           .projects-grid { gap: 1rem; }
-        }
-
-        .side-projects-mobile { display: none; }
-        @media (max-width: 640px) {
-          .side-projects-desktop { display: none; }
-          /* Bleed to the screen edges so the circular tiles get the most
-             room possible on narrow phones, instead of being squeezed by
-             the page's normal side padding. */
-          .side-projects-mobile { display: block; margin: 0 -2rem; }
         }
       `}</style>
 
@@ -318,12 +308,7 @@ export default function Projects() {
               Side Projects
             </h2>
 
-            <div className="side-projects-desktop">
-              <MasonryGallery images={sideProjectImages} columns={3} gap={1} />
-            </div>
-            <div className="side-projects-mobile">
-              <SideProjectsCarousel images={sideProjectImages} />
-            </div>
+            <MasonryGallery images={sideProjectImages} columns={3} gap={1} />
           </div>
 
         </div>
