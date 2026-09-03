@@ -7,11 +7,11 @@ const BASE_URL = 'https://studex-gh.web.app';
 const PROJECT_LABEL = 'STUDEX E-COMMERCE';
 
 const PAGES = [
-  { label: 'Landing', path: '/landing/landing.html' },
-  { label: 'About', path: '/about/about.html' },
-  { label: 'Marketplace', path: '/marketplace/marketplace.html' },
-  { label: 'Dashboard', path: '/dashboard/dashboard.html' },
-  { label: 'Vendors', path: '/vendors/vendors.html' },
+  { label: 'Landing', path: '/landing' },
+  { label: 'About', path: '/about' },
+  { label: 'Marketplace', path: '/marketplace' },
+  { label: 'Dashboard', path: '/dashboard' },
+  { label: 'Vendors', path: '/vendors' },
 ];
 
 const AUTO_ADVANCE_MS = 5000;

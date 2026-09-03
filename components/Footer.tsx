@@ -43,6 +43,12 @@ export default function Footer() {
   const [time, setTime] = useState('');
   const [viewport, setViewport] = useState('—');
   const [verse, setVerse] = useState(bibleVerses[0]);
+  // "Shipped" tracks the month of the most recent GitHub contribution, not
+  // just today's calendar date — so it only moves forward when there's
+  // actually been a push, and does it automatically, no manual edits.
+  const [shippedMonth, setShippedMonth] = useState(() =>
+    new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+  );
 
   useEffect(() => {
     const updateClock = () => {
@@ -57,6 +63,24 @@ export default function Footer() {
     const onResize = () => setViewport(`${window.innerWidth}×${window.innerHeight}`);
     window.addEventListener('resize', onResize);
     setVerse(getDailyItem(bibleVerses, 'verse'));
+
+    fetch('/api/github-activity', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const days: { date: string; count: number }[] | undefined = data?.days;
+        if (!days) return;
+        const lastActive = days
+          .filter((d) => d.count > 0)
+          .sort((a, b) => b.date.localeCompare(a.date))[0];
+        if (lastActive) {
+          const d = new Date(lastActive.date + 'T00:00:00');
+          setShippedMonth(d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
+        }
+      })
+      .catch(() => {
+        // Fall back to the current-month default already in state.
+      });
+
     return () => { clearInterval(clockInterval); window.removeEventListener('resize', onResize); };
   }, []);
 
@@ -75,7 +99,6 @@ export default function Footer() {
         @media (max-width: 768px) {
           .footer-grid { padding: 0 0.5rem; }
           .footer-nav-row { flex-direction: column !important; gap: 2rem !important; }
-          .footer-links { flex-direction: column !important; align-items: flex-start !important; gap: 0.6rem !important; }
           .footer-copyright { flex-direction: column !important; gap: 0.25rem !important; text-align: center !important; }
         }
         @media (max-width: 480px) {
@@ -105,7 +128,7 @@ export default function Footer() {
             </div>
             <div style={{ padding: '1.75rem 2rem' }}>
               <div style={labelStyle}>Shipped</div>
-              <div style={valueStyle}>August 2026</div>
+              <div style={valueStyle}>{shippedMonth}</div>
             </div>
 
             <div style={{ padding: '1.75rem 2rem' }}>
