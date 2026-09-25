@@ -216,7 +216,7 @@ export default function Home() {
               fontFamily: 'Instrument Serif, serif',
             }}>
               Jeremiah Abban{' '}
-              <span style={{ color: 'rgba(255,255,255,0.5)' }}>- Designer Engineer</span>
+              <span style={{ color: 'rgba(255,255,255,0.5)' }}>- Design Engineer</span>
             </h1>
             <p style={{
               fontSize: '16px',
